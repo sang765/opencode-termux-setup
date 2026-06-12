@@ -5,7 +5,7 @@ TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) 
 ## Quick start
 
 ```bash
-npx github:sang765/opencode-termux-setup
+npx -y github:sang765/opencode-termux-setup
 ```
 
 This:
@@ -27,9 +27,9 @@ Missing build tools are auto-installed via `apt` on first run.
 
 | Command | Mode |
 |---|---|
-| `npx github:sang765/opencode-termux-setup` | **Interactive** — logo, version check, update prompt, spinner, auto-launch |
-| `npx github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
-| `npx github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
+| `npx -y github:sang765/opencode-termux-setup` | **Interactive** — logo, version check, update prompt, spinner, auto-launch |
+| `npx -y github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
+| `npx -y github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
 
 ### Interactive mode (default)
 
@@ -50,7 +50,7 @@ Missing build tools are auto-installed via `apt` on first run.
 ### Debug mode
 
 ```bash
-npx github:sang765/opencode-termux-setup --debug
+npx -y github:sang765/opencode-termux-setup --debug
 ```
 
 Shows verbose build logs useful for troubleshooting.
