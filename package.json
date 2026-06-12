@@ -4,7 +4,7 @@
   "description": "Build and package the latest OpenCode CLI for Termux (aarch64)",
   "type": "module",
   "bin": {
-    "opencode-termux-setup": "./dist/index.js"
+    "opencode-termux-setup": "./bin/opencode-termux-setup"
   },
   "scripts": {
     "build": "tsc",
