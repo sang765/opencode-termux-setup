@@ -11,6 +11,16 @@ Missing tools are auto-installed via `apt` on first run.
 
 ## Usage
 
+## Quick start (no clone needed)
+
+```bash
+npx github:sang765/opencode-termux-setup
+```
+
+This auto-clones, compiles, and runs the build for the latest OpenCode version.
+
+## Local development
+
 ```bash
 git clone https://github.com/sang765/opencode-termux-setup.git
 cd opencode-termux-setup
