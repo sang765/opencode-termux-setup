@@ -1,6 +1,6 @@
 {
   "name": "@sang765/opencode-termux-setup",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Build and package the latest OpenCode CLI for Termux (aarch64)",
   "type": "module",
   "bin": {
