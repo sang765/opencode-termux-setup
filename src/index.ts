@@ -74,8 +74,8 @@ function printHelp() {
 opencode-termux — OpenCode manager for Termux
 
 Usage:
-  pnpm dlx @sang765/opencode-termux-setup [options]
-  npx -y @sang765/opencode-termux-setup [options]
+  npx -y github:sang765/opencode-termux-setup [options]
+  npx -y github:sang765/opencode-termux-setup --debug   Verbose output mode
 
 Modes:
   (no flags)      Interactive: check version, update if needed, run opencode
@@ -91,10 +91,9 @@ Options:
   -h, --help            Show this help
 
 Examples:
-  pnpm dlx @sang765/opencode-termux-setup              Interactive mode (fastest)
-  npx -y @sang765/opencode-termux-setup                Interactive mode
-  npx -y @sang765/opencode-termux-setup --debug        Verbose build logs
-  npx -y @sang765/opencode-termux-setup --pkg deb      Build only
+  npx -y github:sang765/opencode-termux-setup              Interactive mode
+  npx -y github:sang765/opencode-termux-setup --debug      Verbose build logs
+  npx -y github:sang765/opencode-termux-setup --pkg deb    Build only
 
 Note: --debug after the package name is for our tool.
       npx --debug ... is npx's own debug mode (use -y instead).
