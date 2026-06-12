@@ -20,6 +20,43 @@ export interface BuildResult {
   pacmanPath?: string;
 }
 
+async function cleanupBuild(version: string, keepWork: boolean) {
+  const dirs = [
+    resolve(ROOT, '.work', `opencode-${version}`),
+    resolve(ROOT, 'third-party'),
+    resolve(ROOT, 'artifacts'),
+    resolve(ROOT, 'packaging', 'dpkg', 'work'),
+    resolve(ROOT, 'packaging', 'pacman', 'pkg'),
+    resolve(ROOT, 'packaging', 'pacman', 'src'),
+  ];
+
+  if (keepWork) {
+    // keep only .work, clean everything else
+    for (const d of dirs.slice(1)) {
+      await rm(d, { recursive: true, force: true });
+    }
+    log('cleaned intermediate artifacts (kept .work)');
+  } else {
+    for (const d of dirs) {
+      await rm(d, { recursive: true, force: true });
+    }
+    log('cleaned intermediate artifacts');
+  }
+
+  // remove any stray npm pack tarballs in the root
+  const { readdir } = await import('node:fs/promises');
+  try {
+    const entries = await readdir(ROOT);
+    for (const e of entries) {
+      if (e.endsWith('.tgz')) {
+        await rm(resolve(ROOT, e), { force: true });
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
 export async function build(opts: BuildOptions): Promise<string | undefined> {
   await checkAndInstallPrereqs();
   const version = await resolveVersion(opts.version);
@@ -52,10 +89,7 @@ export async function build(opts: BuildOptions): Promise<string | undefined> {
     pacmanPath = await packagePacman(version);
   }
 
-  if (!opts.keepWork) {
-    await rm(workDir, { recursive: true, force: true });
-    log('cleaned temporary work directory');
-  }
+  await cleanupBuild(version, opts.keepWork);
 
   log(`Build complete: OpenCode v${version}`);
   if (debPath) log(`  deb: ${debPath}`);
