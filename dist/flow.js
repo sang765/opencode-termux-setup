@@ -35,12 +35,8 @@ function isNewer(latest, current) {
 }
 export async function runFlow() {
     const installed = getInstalledVersion();
-    // ASCII logo
-    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
+    // Logo
+    writeLn(`  \x1b[90mOpen\x1b[97mCode\x1b[0m for \x1b[38;5;208mTermux\x1b[0m`);
     // Show version header
     writeLn(`  \x1b[90mInstalled\x1b[0m  \x1b[97m${installed ?? 'Not Installed'}\x1b[0m`);
     let upstream = null;

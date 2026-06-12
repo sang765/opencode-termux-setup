@@ -34,12 +34,7 @@ Missing build tools are auto-installed via `apt` on first run.
 ### Interactive mode (default)
 
 ```
-
-     █████   █████
-    ██   ██   ██
-    ██   ██   ██
-    ██   ██   ██
-     █████   █████
+  OpenCode for Termux
 
   Installed  1.17.4
   Upstream  1.17.4
@@ -47,7 +42,6 @@ Missing build tools are auto-installed via `apt` on first run.
   You're on the latest version
 
  ✓ Launching OpenCode
- ✓ OpenCode exited
 ```
 
 ### Debug mode
