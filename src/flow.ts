@@ -135,8 +135,8 @@ export async function runFlow() {
       const title = cols[1] ?? `New session - ${new Date().toISOString()}`;
       if (sessionId && sessionId !== beforeSession) {
         writeLn('');
-        writeLn(`  \x1b[90mSession\x1b[0m   \x1b[97m${title}\x1b[0m`);
-        writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[36mopencode -s ${sessionId}\x1b[0m`);
+        writeLn(`  \x1b[90mSession\x1b[0m   \x1b[1;97m${title}\x1b[0m`);
+        writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[1;36mopencode -s ${sessionId}\x1b[0m`);
       }
     }
   } catch {
