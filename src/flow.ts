@@ -39,11 +39,11 @@ export async function runFlow() {
 
   // ASCII logo
   writeLn(`  \x1b[36m\x1b[0m`);
-  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
-  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
-  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
+  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588\u2588\u2588\u2588\x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588\u2588\u2588\u2588\x1b[0m`);
   writeLn(`  \x1b[36m\x1b[0m`);
 
   // Show version header
