@@ -74,8 +74,11 @@ Options:
 
 Examples:
   npx -y github:sang765/opencode-termux-setup              Interactive mode
-  npx -y github:sang765/opencode-termux-setup --debug      Verbose mode
+  npx -y github:sang765/opencode-termux-setup --debug      Verbose build logs
   npx -y github:sang765/opencode-termux-setup --pkg deb    Build only
+
+Note: --debug after the package name is for our tool.
+      npx --debug ... is npx's own debug mode (use -y instead).
 `);
 }
 async function main() {

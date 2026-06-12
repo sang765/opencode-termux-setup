@@ -55,6 +55,9 @@ npx -y github:sang765/opencode-termux-setup --debug
 
 Shows verbose build logs useful for troubleshooting.
 
+> **Note**: `--debug` after the package name passes it to our tool.  
+> `npx --debug ...` is npx's own debug mode — use `-y` instead to skip prompts.
+
 ## Local development
 
 ```bash
