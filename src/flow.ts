@@ -114,11 +114,11 @@ export async function runFlow() {
   // Launch opencode
   const launchSpinner = new Spinner('Launching OpenCode');
   launchSpinner.start();
+  launchSpinner.succeed('Launching OpenCode');
 
   try {
     await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
-    launchSpinner.succeed('OpenCode exited');
   } catch {
-    launchSpinner.fail('OpenCode exited with error');
+    // opencode handles its own exit codes
   }
 }
