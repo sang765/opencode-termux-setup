@@ -5,6 +5,7 @@ import { resolveVersion, downloadUpstream } from './download.js';
 import { wrapBinary } from './wrap.js';
 import { stageInstall } from './stage.js';
 import { packageDeb, packagePacman } from './packaging.js';
+import { checkAndInstallPrereqs } from './prereqs.js';
 import { log } from './log.js';
 
 export interface BuildOptions {
@@ -20,6 +21,7 @@ export interface BuildResult {
 }
 
 export async function build(opts: BuildOptions): Promise<string | undefined> {
+  await checkAndInstallPrereqs();
   const version = await resolveVersion(opts.version);
   const workDir = resolve(ROOT, '.work', `opencode-${version}`);
   const runtimeDir = resolve(ROOT, 'artifacts', 'opencode', 'runtime');
