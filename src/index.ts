@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 import { build } from './build.js';
 import { install } from './install.js';
+import { runFlow } from './flow.js';
+import { run } from './run.js';
+import { error as logError } from './log.js';
+
+const DEBUG_FLAGS = new Set(['--version', '-v', '--pkg', '--install', '-i', '--keep', '-k', '--debug']);
 
 interface CliArgs {
   version?: string;
@@ -8,12 +13,37 @@ interface CliArgs {
   install: boolean;
   keep: boolean;
   help: boolean;
+  debug: boolean;
 }
 
-function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { pkg: 'deb', install: false, keep: false, help: false };
+function parseArgs(argv: string[]): { args: CliArgs; opencodeArgs: string[]; buildMode: boolean } {
+  const args: CliArgs = { pkg: 'deb', install: false, keep: false, help: false, debug: false };
+  let buildMode = false;
+  const opencodeArgs: string[] = [];
+  let afterSep = false;
+
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
+
+    if (afterSep) {
+      opencodeArgs.push(a);
+      continue;
+    }
+
+    if (a === '--') {
+      afterSep = true;
+      continue;
+    }
+
+    if (a === '--debug') {
+      args.debug = true;
+      continue;
+    }
+
+    if (DEBUG_FLAGS.has(a)) {
+      buildMode = true;
+    }
+
     switch (a) {
       case '--version':
       case '-v':
@@ -36,35 +66,39 @@ function parseArgs(argv: string[]): CliArgs {
         break;
     }
   }
-  return args;
+  return { args, opencodeArgs, buildMode };
 }
 
 function printHelp() {
   console.log(`
-opencode-termux — build and install the latest OpenCode CLI for Termux
+opencode-termux — OpenCode manager for Termux
 
 Usage:
-  pnpm start [options]
-  node dist/index.js [options]
+  npx github:sang765/opencode-termux-setup [options]
+  npx github:sang765/opencode-termux-setup --debug   Verbose output mode
+
+Modes:
+  (no flags)      Interactive: check version, update if needed, run opencode
+  --debug         Verbose mode with full build logs
+  --pkg <type>    Build mode: create .deb/.pacman package (implies --debug)
 
 Options:
   -v, --version <ver>   Version to build (default: latest from npm)
   --pkg <type>          Package type: deb | pacman | both (default: deb)
-  -i, --install         Install the resulting .deb after building
+  -i, --install         Install the .deb after building
   -k, --keep            Keep temporary work directory
+  --debug               Show verbose build output
   -h, --help            Show this help
 
 Examples:
-  pnpm start                          Build latest version as .deb
-  pnpm start --pkg both               Build both .deb and .pacman
-  pnpm start -v 1.17.4                Build specific version
-  pnpm start -i                       Build and install
-  pnpm start --pkg both -i            Build all packages and install
+  npx github:sang765/opencode-termux-setup              Interactive mode
+  npx github:sang765/opencode-termux-setup --debug      Verbose mode
+  npx github:sang765/opencode-termux-setup --pkg deb    Build only
 `);
 }
 
 async function main() {
-  const args = parseArgs(process.argv);
+  const { args, opencodeArgs, buildMode } = parseArgs(process.argv);
 
   if (args.help) {
     printHelp();
@@ -72,22 +106,31 @@ async function main() {
   }
 
   if (process.arch !== 'arm64') {
-    console.error('This tool is designed for Termux aarch64 (ARM64)');
+    logError('This tool is designed for Termux aarch64 (ARM64)');
     process.exit(1);
   }
 
-  const debPath = await build({
-    version: args.version,
-    pkg: args.pkg,
-    keepWork: args.keep,
-  });
+  if (buildMode || args.debug) {
+    // Verbose build mode
+    const debPath = await build({
+      version: args.version,
+      pkg: args.pkg,
+      keepWork: args.keep,
+    });
 
-  if (args.install && debPath) {
-    await install(debPath);
+    if (args.install && debPath) {
+      await install(debPath);
+    }
+  } else if (opencodeArgs.length > 0) {
+    // Args passed directly to opencode
+    await run(opencodeArgs);
+  } else {
+    // Simple interactive mode
+    await runFlow();
   }
 }
 
 main().catch((err: unknown) => {
-  console.error('Build failed:', err instanceof Error ? err.message : String(err));
+  logError('Build failed:', err instanceof Error ? err.message : String(err));
   process.exit(1);
 });
