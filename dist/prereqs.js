@@ -1,5 +1,5 @@
 import { execa, execaSync } from 'execa';
-import { log, die } from './log.js';
+import { info, warn, success, error, die } from './log.js';
 const PREREQS = [
     { name: 'npm', check: 'npm --version', pkg: 'nodejs' },
     { name: 'tar', check: 'tar --version', pkg: 'tar' },
@@ -28,13 +28,13 @@ export async function checkAndInstallPrereqs() {
     }
     const required = missing.filter(p => !p.optional);
     if (required.length === 0) {
-        log('all required prerequisites found');
+        success('all required prerequisites found');
         if (missing.length > 0) {
-            log(`optional prerequisites missing: ${missing.map(p => p.name).join(', ')}`);
+            warn(`optional prerequisites missing: ${missing.map(p => p.name).join(', ')}`);
         }
         return;
     }
-    log(`missing required tools: ${required.map(p => p.name).join(', ')}`);
+    error(`missing required tools: ${required.map(p => p.name).join(', ')}`);
     // Check if apt is available
     if (!found('apt --version')) {
         die('apt not available — install missing tools manually');
@@ -44,7 +44,7 @@ export async function checkAndInstallPrereqs() {
         .map(p => p.aptPkg ?? p.pkg)
         .filter((p) => !!p);
     const uniquePkgs = [...new Set(packages)];
-    log(`installing: ${uniquePkgs.join(', ')}`);
+    info(`installing: ${uniquePkgs.join(', ')}`);
     await execa('apt', ['install', '-y', ...uniquePkgs], { stdio: 'inherit' });
     // Verify installations
     for (const prereq of required) {
@@ -52,6 +52,6 @@ export async function checkAndInstallPrereqs() {
             die(`${prereq.name} still not found after install attempt`);
         }
     }
-    log('all prerequisites satisfied');
+    success('all prerequisites satisfied');
 }
 //# sourceMappingURL=prereqs.js.map

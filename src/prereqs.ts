@@ -1,5 +1,5 @@
 import { execa, execaSync } from 'execa';
-import { log, die } from './log.js';
+import { info, warn, success, error, die } from './log.js';
 
 interface Prereq {
   name: string;
@@ -40,14 +40,14 @@ export async function checkAndInstallPrereqs(): Promise<void> {
 
   const required = missing.filter(p => !p.optional);
   if (required.length === 0) {
-    log('all required prerequisites found');
+    success('all required prerequisites found');
     if (missing.length > 0) {
-      log(`optional prerequisites missing: ${missing.map(p => p.name).join(', ')}`);
+      warn(`optional prerequisites missing: ${missing.map(p => p.name).join(', ')}`);
     }
     return;
   }
 
-  log(`missing required tools: ${required.map(p => p.name).join(', ')}`);
+  error(`missing required tools: ${required.map(p => p.name).join(', ')}`);
 
   // Check if apt is available
   if (!found('apt --version')) {
@@ -60,7 +60,7 @@ export async function checkAndInstallPrereqs(): Promise<void> {
     .filter((p): p is string => !!p);
   const uniquePkgs = [...new Set(packages)];
 
-  log(`installing: ${uniquePkgs.join(', ')}`);
+  info(`installing: ${uniquePkgs.join(', ')}`);
   await execa('apt', ['install', '-y', ...uniquePkgs], { stdio: 'inherit' });
 
   // Verify installations
@@ -70,5 +70,5 @@ export async function checkAndInstallPrereqs(): Promise<void> {
     }
   }
 
-  log('all prerequisites satisfied');
+  success('all prerequisites satisfied');
 }

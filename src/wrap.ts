@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { resolveLoader } from './download.js';
-import { log, die } from './log.js';
+import { info, success, die } from './log.js';
 
 export async function wrapBinary(
   upstreamBin: string,
@@ -12,7 +12,7 @@ export async function wrapBinary(
 ): Promise<void> {
   const loaderPath = await resolveLoader(loaderDir);
 
-  log('wrapping upstream binary for Termux/Android');
+  info('wrapping upstream binary for Termux/Android');
   await execa('python3', ['build.py', upstreamBin, '--wrapper', './wrapper'], {
     cwd: loaderPath,
   });
@@ -25,10 +25,10 @@ export async function wrapBinary(
   await copyFile(wrapped, runtimeOut);
   await execa('chmod', ['755', runtimeOut]);
 
-  log('wrapped runtime verification');
+  info('wrapped runtime verification');
   const { stdout: fileInfo } = await execa('file', [runtimeOut]);
-  log(fileInfo);
+  info(fileInfo);
 
   const { stdout: verOut } = await execa(runtimeOut, ['--version']);
-  log(`runtime version: ${verOut.trim()}`);
+  success(`runtime version: ${verOut.trim()}`);
 }

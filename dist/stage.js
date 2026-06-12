@@ -3,10 +3,10 @@ import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { ROOT } from './constants.js';
-import { log, die } from './log.js';
+import { info, warn, success, die } from './log.js';
 const PREFIX = resolve(ROOT, 'artifacts', 'staged', 'prefix');
 export async function stageInstall(runtimePath) {
-    log('staging install prefix');
+    info('staging install prefix');
     const dirs = [
         resolve(PREFIX, 'lib', 'opencode', 'runtime'),
         resolve(PREFIX, 'bin'),
@@ -42,7 +42,7 @@ export async function stageInstall(runtimePath) {
     }
     const statxSrc = resolve(ROOT, 'resources', 'statx-shim.c');
     if (existsSync(statxSrc)) {
-        log('compiling statx seccomp shim');
+        info('compiling statx seccomp shim');
         const statxOut = resolve(PREFIX, 'lib', 'opencode', 'lib', 'libstatx-shim.so');
         const cc = existsSync('/data/data/com.termux/files/usr/bin/gcc')
             ? '/data/data/com.termux/files/usr/bin/gcc'
@@ -51,7 +51,7 @@ export async function stageInstall(runtimePath) {
             await execa(cc, ['-shared', '-fPIC', '-o', statxOut, statxSrc]);
         }
         catch {
-            log('warning: statx shim compilation failed, skipping');
+            warn('statx shim compilation failed, skipping');
         }
     }
     const metaPath = resolve(ROOT, 'artifacts', 'opencode', 'build.meta');
@@ -65,7 +65,7 @@ export async function stageInstall(runtimePath) {
         `runtime_path=${PREFIX}/lib/opencode/runtime/opencode`,
         '',
     ].join('\n'));
-    log(`staged build ready: ${PREFIX}`);
+    success(`staged build ready: ${PREFIX}`);
     return PREFIX;
 }
 //# sourceMappingURL=stage.js.map

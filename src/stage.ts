@@ -1,14 +1,14 @@
 import { execa } from 'execa';
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { ROOT } from './constants.js';
-import { log, die } from './log.js';
+import { info, warn, success, die } from './log.js';
 
 const PREFIX = resolve(ROOT, 'artifacts', 'staged', 'prefix');
 
 export async function stageInstall(runtimePath: string): Promise<string> {
-  log('staging install prefix');
+  info('staging install prefix');
 
   const dirs = [
     resolve(PREFIX, 'lib', 'opencode', 'runtime'),
@@ -49,7 +49,7 @@ export async function stageInstall(runtimePath: string): Promise<string> {
 
   const statxSrc = resolve(ROOT, 'resources', 'statx-shim.c');
   if (existsSync(statxSrc)) {
-    log('compiling statx seccomp shim');
+    info('compiling statx seccomp shim');
     const statxOut = resolve(PREFIX, 'lib', 'opencode', 'lib', 'libstatx-shim.so');
     const cc = existsSync('/data/data/com.termux/files/usr/bin/gcc')
       ? '/data/data/com.termux/files/usr/bin/gcc'
@@ -57,7 +57,7 @@ export async function stageInstall(runtimePath: string): Promise<string> {
     try {
       await execa(cc, ['-shared', '-fPIC', '-o', statxOut, statxSrc]);
     } catch {
-      log('warning: statx shim compilation failed, skipping');
+      warn('statx shim compilation failed, skipping');
     }
   }
 
@@ -73,6 +73,6 @@ export async function stageInstall(runtimePath: string): Promise<string> {
     '',
   ].join('\n'));
 
-  log(`staged build ready: ${PREFIX}`);
+  success(`staged build ready: ${PREFIX}`);
   return PREFIX;
 }

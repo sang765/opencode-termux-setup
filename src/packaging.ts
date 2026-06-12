@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ROOT } from './constants.js';
-import { log, die } from './log.js';
+import { info, warn, success, die } from './log.js';
 
 const PREFIX = '/data/data/com.termux/files/usr';
 const STAGED_PREFIX = resolve(ROOT, 'artifacts', 'staged', 'prefix');
@@ -98,7 +98,7 @@ exit 0
   await execa('chmod', ['755', debRoot]);
 
   await execa('dpkg-deb', ['--build', debRoot, outFile]);
-  log(`DEB package created: ${outFile}`);
+  success(`DEB package created: ${outFile}`);
   return outFile;
 }
 
@@ -106,7 +106,7 @@ export async function packagePacman(version?: string): Promise<string | undefine
   const ver = version ?? await getVersion();
 
   if (!existsSync('/data/data/com.termux/files/usr/bin/makepkg')) {
-    log('pacman: makepkg not available, skipping');
+    warn('pacman: makepkg not available, skipping');
     return undefined;
   }
 
@@ -135,10 +135,10 @@ package() {
     await execa('makepkg', ['-C', '--noconfirm'], { cwd: pkgbuildDir });
     const { stdout } = await execa('ls', [resolve(pkgbuildDir, 'opencode-*.pkg.tar.*')]);
     const pkgFile = stdout.trim().split('\n')[0];
-    log(`pacman package created: ${pkgFile}`);
+    success(`pacman package created: ${pkgFile}`);
     return pkgFile;
   } catch (err) {
-    log('pacman packaging failed (keyring/config issue), skipping');
+    warn('pacman packaging failed (keyring/config issue), skipping');
     return undefined;
   }
 }

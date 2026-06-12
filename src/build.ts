@@ -6,7 +6,7 @@ import { wrapBinary } from './wrap.js';
 import { stageInstall } from './stage.js';
 import { packageDeb, packagePacman } from './packaging.js';
 import { checkAndInstallPrereqs } from './prereqs.js';
-import { log } from './log.js';
+import { info, success, error } from './log.js';
 
 export interface BuildOptions {
   version?: string;
@@ -35,12 +35,12 @@ async function cleanupBuild(version: string, keepWork: boolean) {
     for (const d of dirs.slice(1)) {
       await rm(d, { recursive: true, force: true });
     }
-    log('cleaned intermediate artifacts (kept .work)');
+    info('cleaned intermediate artifacts (kept .work)');
   } else {
     for (const d of dirs) {
       await rm(d, { recursive: true, force: true });
     }
-    log('cleaned intermediate artifacts');
+    info('cleaned intermediate artifacts');
   }
 
   // remove any stray npm pack tarballs in the root
@@ -65,7 +65,7 @@ export async function build(opts: BuildOptions): Promise<string | undefined> {
   const runtimeOut = resolve(runtimeDir, 'opencode-termux');
   const loaderDir = resolve(ROOT, 'third-party', 'bun-termux-loader');
 
-  log(`Building OpenCode v${version} for Termux (aarch64)`);
+  info(`Building OpenCode v${version} for Termux (aarch64)`);
 
   await mkdir(workDir, { recursive: true });
   await rm(workDir, { recursive: true, force: true });
@@ -91,9 +91,9 @@ export async function build(opts: BuildOptions): Promise<string | undefined> {
 
   await cleanupBuild(version, opts.keepWork);
 
-  log(`Build complete: OpenCode v${version}`);
-  if (debPath) log(`  deb: ${debPath}`);
-  if (pacmanPath) log(`  pacman: ${pacmanPath}`);
+  success(`Build complete: OpenCode v${version}`);
+  if (debPath) info(`  deb: ${debPath}`);
+  if (pacmanPath) info(`  pacman: ${pacmanPath}`);
 
   return debPath ?? pacmanPath;
 }

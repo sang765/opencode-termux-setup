@@ -6,7 +6,7 @@ import { wrapBinary } from './wrap.js';
 import { stageInstall } from './stage.js';
 import { packageDeb, packagePacman } from './packaging.js';
 import { checkAndInstallPrereqs } from './prereqs.js';
-import { log } from './log.js';
+import { info, success } from './log.js';
 async function cleanupBuild(version, keepWork) {
     const dirs = [
         resolve(ROOT, '.work', `opencode-${version}`),
@@ -21,13 +21,13 @@ async function cleanupBuild(version, keepWork) {
         for (const d of dirs.slice(1)) {
             await rm(d, { recursive: true, force: true });
         }
-        log('cleaned intermediate artifacts (kept .work)');
+        info('cleaned intermediate artifacts (kept .work)');
     }
     else {
         for (const d of dirs) {
             await rm(d, { recursive: true, force: true });
         }
-        log('cleaned intermediate artifacts');
+        info('cleaned intermediate artifacts');
     }
     // remove any stray npm pack tarballs in the root
     const { readdir } = await import('node:fs/promises');
@@ -50,7 +50,7 @@ export async function build(opts) {
     const runtimeDir = resolve(ROOT, 'artifacts', 'opencode', 'runtime');
     const runtimeOut = resolve(runtimeDir, 'opencode-termux');
     const loaderDir = resolve(ROOT, 'third-party', 'bun-termux-loader');
-    log(`Building OpenCode v${version} for Termux (aarch64)`);
+    info(`Building OpenCode v${version} for Termux (aarch64)`);
     await mkdir(workDir, { recursive: true });
     await rm(workDir, { recursive: true, force: true });
     await mkdir(workDir, { recursive: true });
@@ -67,11 +67,11 @@ export async function build(opts) {
         pacmanPath = await packagePacman(version);
     }
     await cleanupBuild(version, opts.keepWork);
-    log(`Build complete: OpenCode v${version}`);
+    success(`Build complete: OpenCode v${version}`);
     if (debPath)
-        log(`  deb: ${debPath}`);
+        info(`  deb: ${debPath}`);
     if (pacmanPath)
-        log(`  pacman: ${pacmanPath}`);
+        info(`  pacman: ${pacmanPath}`);
     return debPath ?? pacmanPath;
 }
 //# sourceMappingURL=build.js.map
