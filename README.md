@@ -20,6 +20,20 @@ This:
 
 No clone needed — npx fetches and runs everything from GitHub.
 
+### Convenience alias
+
+Add this to `~/.bashrc` (or `~/.zshrc`) for quick access:
+
+```bash
+alias oc-termux='npx -y github:sang765/opencode-termux-setup'
+```
+
+Or via `pkg` bin name (works with tools that respect npm bins):
+
+```bash
+npx -y oc-termux
+```
+
 ## Prerequisites
 
 - Termux on aarch64
