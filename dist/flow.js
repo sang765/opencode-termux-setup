@@ -103,9 +103,10 @@ export async function runFlow() {
     launchSpinner.succeed('Launching OpenCode');
     try {
         await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
+        writeLn(`  \x1b[32m\u2713 OpenCode exited\x1b[0m`);
     }
     catch {
-        // opencode handles its own exit codes
+        writeLn(`  \x1b[31m\u2717 OpenCode exited with error\x1b[0m`);
     }
 }
 //# sourceMappingURL=flow.js.map
