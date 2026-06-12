@@ -1,0 +1,5 @@
+src/
+tsconfig.json
+.git/
+.gitignore
+*.map
