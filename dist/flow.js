@@ -4,7 +4,6 @@ import { build } from './build.js';
 import { install } from './install.js';
 import { writeLn, select, Spinner } from './ui.js';
 import { getCachedVersion, setCachedVersion } from './cache.js';
-import { getLatestSession } from './session.js';
 function getInstalledVersion() {
     try {
         const { stdout } = execaSync('opencode', ['--version']);
@@ -105,12 +104,5 @@ export async function runFlow() {
     // Launch opencode
     writeLn(`  \x1b[32m\u2713 Launching OpenCode\x1b[0m`);
     await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
-    // Show latest session info (direct SQLite query, ~0ms)
-    const session = getLatestSession();
-    if (session) {
-        writeLn('');
-        writeLn(`  \x1b[90mSession\x1b[0m   \x1b[1;97m${session.title}\x1b[0m`);
-        writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[1;36mopencode -s ${session.id}\x1b[0m`);
-    }
 }
 //# sourceMappingURL=flow.js.map
