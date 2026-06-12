@@ -7,6 +7,7 @@
     "opencode-termux-setup": "./bin/opencode-termux-setup"
   },
   "scripts": {
+    "prepare": "tsc",
     "build": "tsc",
     "start": "node dist/index.js"
   },
