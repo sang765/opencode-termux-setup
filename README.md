@@ -9,7 +9,13 @@ TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) 
 ## Quick start
 
 ```bash
-npx -y github:sang765/opencode-termux-setup
+pnpm dlx @sang765/opencode-termux-setup
+```
+
+Or with npx:
+
+```bash
+npx -y @sang765/opencode-termux-setup
 ```
 
 This:
@@ -18,7 +24,7 @@ This:
 3. Prompts to update with an interactive arrow-key menu
 4. Builds, installs, and launches OpenCode
 
-No clone needed — npx fetches and runs everything from GitHub.
+No clone needed — `pnpm dlx` / `npx` fetches and runs instantly from npm.
 
 ## Prerequisites
 
@@ -31,9 +37,9 @@ Missing build tools are auto-installed via `apt` on first run.
 
 | Command | Mode |
 |---|---|
-| `npx -y github:sang765/opencode-termux-setup` | **Interactive** — logo, version check, update prompt, spinner, auto-launch |
-| `npx -y github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
-| `npx -y github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
+| `pnpm dlx @sang765/opencode-termux-setup` | **Interactive** — logo, version check, update prompt, spinner, auto-launch |
+| `npx -y @sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
+| `npx -y @sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
 
 ### Interactive mode (default)
 
@@ -54,7 +60,7 @@ Missing build tools are auto-installed via `apt` on first run.
 ### Debug mode
 
 ```bash
-npx -y github:sang765/opencode-termux-setup --debug
+npx -y @sang765/opencode-termux-setup --debug
 ```
 
 Shows verbose build logs useful for troubleshooting.
@@ -72,6 +78,12 @@ pnpm start                  # interactive mode
 pnpm start --debug          # verbose build
 pnpm start --pkg deb -i     # build and install specific version
 pnpm start -v 1.17.4        # build specific version
+```
+
+To test the published version locally before release:
+```bash
+npm pack                     # creates a .tgz
+pnpm dlx ./opencode-termux-setup-*.tgz
 ```
 
 ### Options

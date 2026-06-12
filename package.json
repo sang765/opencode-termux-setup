@@ -7,10 +7,16 @@
     "opencode-termux-setup": "./bin/opencode-termux-setup"
   },
   "scripts": {
-    "prepare": "tsc",
+    "prepublishOnly": "tsc",
     "build": "tsc",
     "start": "node dist/index.js"
   },
+  "files": [
+    "dist/",
+    "bin/",
+    "resources/",
+    "package.json"
+  ],
   "dependencies": {
     "execa": "^9.5.2"
   },

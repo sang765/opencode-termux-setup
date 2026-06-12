@@ -1,0 +1,9 @@
+import { execa } from 'execa';
+import { info, success } from './log.js';
+export async function install(debPath) {
+    info(`installing ${debPath}`);
+    await execa('apt', ['install', '-y', '--allow-downgrades', debPath], { stdio: 'inherit' });
+    const { stdout } = await execa('opencode', ['--version']);
+    success(`installed opencode ${stdout.trim()}`);
+}
+//# sourceMappingURL=install.js.map
