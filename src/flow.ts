@@ -1,4 +1,3 @@
-import { spawn } from 'node:child_process';
 import { execa, execaSync } from 'execa';
 import { setSilent } from './log.js';
 import { build } from './build.js';
@@ -108,10 +107,7 @@ export async function runFlow() {
 
   writeLn('');
 
-  // Launch opencode in background, then exit
+  // Launch opencode
   writeLn(`  \x1b[32m\u2713 Launching OpenCode\x1b[0m`);
-  spawn('opencode', process.argv.slice(2), {
-    stdio: 'inherit',
-    detached: true,
-  }).unref();
+  await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
 }
