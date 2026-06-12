@@ -36,13 +36,11 @@ function isNewer(latest, current) {
 export async function runFlow() {
     const installed = getInstalledVersion();
     // ASCII logo
-    writeLn(`  \x1b[36m\x1b[0m`);
-    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588\u2588\u2588\u2588\x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588  \x1b[0m`);
-    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588\x1b[0m   \x1b[35m\u2588\u2588\u2588\u2588\u2588\x1b[0m`);
-    writeLn(`  \x1b[36m\x1b[0m`);
+    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
+    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+    writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+    writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
     // Show version header
     writeLn(`  \x1b[90mInstalled\x1b[0m  \x1b[97m${installed ?? 'Not Installed'}\x1b[0m`);
     let upstream = null;
