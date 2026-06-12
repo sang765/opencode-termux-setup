@@ -1,9 +1,13 @@
 import { execa, execaSync } from 'execa';
+import { copyFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { setSilent } from './log.js';
 import { build } from './build.js';
 import { install } from './install.js';
 import { writeLn, write, select, Spinner } from './ui.js';
 import { getCachedVersion, setCachedVersion } from './cache.js';
+import { ROOT } from './constants.js';
 
 function getInstalledVersion(): string | null {
   try {
@@ -113,6 +117,19 @@ export async function runFlow() {
   }
 
   writeLn('');
+
+  // Install octermux alias if not present
+  const homeDir = process.env.HOME || '/data/data/com.termux/files/home';
+  const octermuxPath = resolve(homeDir, 'bin', 'octermux');
+  if (!existsSync(octermuxPath)) {
+    const scriptSrc = resolve(ROOT, 'resources', 'octermux.sh');
+    if (existsSync(scriptSrc)) {
+      await mkdir(resolve(homeDir, 'bin'), { recursive: true });
+      await copyFile(scriptSrc, octermuxPath);
+      await execa('chmod', ['755', octermuxPath]);
+      writeLn(`  \x1b[90mAlias\x1b[0m    \x1b[1;36moctermux\x1b[0m \x1b[90m→\x1b[0m \x1b[97mrun '\x1b[1moctermux\x1b[0m\x1b[97m' to launch OpenCode\x1b[0m`);
+    }
+  }
 
   // Launch opencode
   writeLn(`  \x1b[32m\u2713 Launching OpenCode\x1b[0m`);
