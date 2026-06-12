@@ -1,0 +1,12 @@
+node_modules/
+dist/
+artifacts/
+.work/
+packing/
+packaging/dpkg/work/
+packaging/pacman/pkg/
+packaging/pacman/src/
+third-party/
+*.tgz
+*.deb
+*.pkg.tar.*

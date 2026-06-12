@@ -1,0 +1,27 @@
+{
+  "name": "opencode-termux",
+  "version": "0.1.0",
+  "description": "Build and package the latest OpenCode CLI for Termux (aarch64)",
+  "type": "module",
+  "bin": {
+    "opencode-termux": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node --experimental-specifier-resolution=node dist/index.js",
+    "prepublishOnly": "tsc"
+  },
+  "dependencies": {
+    "execa": "^9.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@11.2.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": ["opencode", "termux", "android", "ai", "coding"],
+  "license": "MIT"
+}
