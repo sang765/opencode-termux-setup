@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
-exec node "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/dist/index.js" "$@"
+#!/data/data/com.termux/files/usr/bin/bash
+exec /data/data/com.termux/files/usr/bin/node "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/dist/index.js" "$@"
