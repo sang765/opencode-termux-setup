@@ -1,5 +1,7 @@
 # opencode-termux-setup
 
+![Screenshot](.github/assets/Screenshot_20260612-182302.jpg)
+
 TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) on **Termux (aarch64)**. Downloads the latest upstream ARM64 binary, wraps it for Android compatibility, and produces installable `.deb` packages.
 
 ## Quick start
