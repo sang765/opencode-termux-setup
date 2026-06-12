@@ -3,6 +3,8 @@ import { setSilent } from './log.js';
 import { build } from './build.js';
 import { install } from './install.js';
 import { writeLn, write, select, Spinner } from './ui.js';
+import { getCachedVersion, setCachedVersion } from './cache.js';
+import { getLatestSession } from './session.js';
 
 function getInstalledVersion(): string | null {
   try {
@@ -13,9 +15,11 @@ function getInstalledVersion(): string | null {
   }
 }
 
-async function getUpstreamVersion(): Promise<string> {
+async function fetchUpstreamVersion(): Promise<string> {
   const { stdout } = await execa('npm', ['view', 'opencode-linux-arm64', 'version']);
-  return stdout.trim();
+  const version = stdout.trim();
+  await setCachedVersion(version);
+  return version;
 }
 
 function parseMajorMinorPatch(v: string): number[] {
@@ -37,15 +41,20 @@ function isNewer(latest: string, current: string): boolean {
 export async function runFlow() {
   const installed = getInstalledVersion();
 
-  // Logo
+  // Show logo immediately
   writeLn(`  \x1b[90mOpen\x1b[97mCode\x1b[0m for \x1b[38;5;208mTermux\x1b[0m`);
-
-  // Show version header
   writeLn(`  \x1b[90mInstalled\x1b[0m  \x1b[97m${installed ?? 'Not Installed'}\x1b[0m`);
+
+  // Start upstream version check in parallel while we show the UI
+  const upstreamPromise = (async () => {
+    const cached = await getCachedVersion();
+    if (cached) return cached;
+    return fetchUpstreamVersion();
+  })();
 
   let upstream: string | null = null;
   try {
-    upstream = await getUpstreamVersion();
+    upstream = await upstreamPromise;
     writeLn(`  \x1b[90mUpstream\x1b[0m  \x1b[97m${upstream}\x1b[0m`);
   } catch {
     writeLn(`  \x1b[90mUpstream\x1b[0m  \x1b[31mcould not check\x1b[0m`);
@@ -74,7 +83,6 @@ export async function runFlow() {
       writeLn(`  \x1b[36mUpdating to ${upstream}...\x1b[0m`);
       writeLn('');
 
-      // Silence verbose logs during build
       setSilent(true);
 
       const spinner = new Spinner('Building OpenCode');
@@ -112,21 +120,11 @@ export async function runFlow() {
 
   await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
 
-  // Show latest session info
-  try {
-    const { stdout } = await execa('opencode', ['session', 'list']);
-    const lines = stdout.trim().split('\n').filter(Boolean);
-    if (lines.length > 2) {
-      const cols = lines[lines.length - 1].trim().split(/\s{2,}/);
-      const sessionId = cols[0];
-      const title = cols[1] ?? `New session - ${new Date().toISOString()}`;
-      if (sessionId) {
-        writeLn('');
-        writeLn(`  \x1b[90mSession\x1b[0m   \x1b[1;97m${title}\x1b[0m`);
-        writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[1;36mopencode -s ${sessionId}\x1b[0m`);
-      }
-    }
-  } catch {
-    // ignore
+  // Show latest session info (direct SQLite query, ~0ms)
+  const session = getLatestSession();
+  if (session) {
+    writeLn('');
+    writeLn(`  \x1b[90mSession\x1b[0m   \x1b[1;97m${session.title}\x1b[0m`);
+    writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[1;36mopencode -s ${session.id}\x1b[0m`);
   }
 }
