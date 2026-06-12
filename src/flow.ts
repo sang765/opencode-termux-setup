@@ -1,6 +1,6 @@
 import { execa, execaSync } from 'execa';
 import { copyFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setSilent } from './log.js';
 import { build } from './build.js';
@@ -43,6 +43,14 @@ function isNewer(latest: string, current: string): boolean {
 
 export async function runFlow() {
   const installed = getInstalledVersion();
+
+  // Handle --version flag
+  if (process.argv.slice(2).includes('--version')) {
+    const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf-8'));
+    writeLn(`\x1b[90mOpenCode\x1b[0m  \x1b[97m${installed ?? 'N/A'}\x1b[0m`);
+    writeLn(`\x1b[90moctermux\x1b[0m  \x1b[97m${(pkg as { version: string }).version}\x1b[0m`);
+    return;
+  }
 
   // Show logo immediately
   writeLn(`  \x1b[90mOpen\x1b[97mCode\x1b[0m for \x1b[38;5;208mTermux\x1b[0m`);
