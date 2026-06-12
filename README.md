@@ -42,6 +42,9 @@ Missing build tools are auto-installed via `apt` on first run.
   You're on the latest version
 
  ✓ Launching OpenCode
+
+  Session   New session - 2026-06-12T03:38:45.899Z
+  Continue  opencode -s ses_14616d6f4ffeqXjkNv4ze8AiFj
 ```
 
 ### Debug mode

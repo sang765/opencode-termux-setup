@@ -95,6 +95,37 @@ export async function runFlow() {
     writeLn('');
     // Launch opencode
     writeLn(`  \x1b[32m\u2713 Launching OpenCode\x1b[0m`);
+    // Grab latest session ID before launching (if any exist)
+    let beforeSession = null;
+    try {
+        const { stdout } = await execa('opencode', ['session', 'list']);
+        const lines = stdout.trim().split('\n').filter(Boolean);
+        if (lines.length > 2) {
+            const cols = lines[lines.length - 1].trim().split(/\s{2,}/);
+            beforeSession = cols[0] ?? null;
+        }
+    }
+    catch {
+        // no sessions yet
+    }
     await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
+    // After opencode exits, show session info
+    try {
+        const { stdout } = await execa('opencode', ['session', 'list']);
+        const lines = stdout.trim().split('\n').filter(Boolean);
+        if (lines.length > 2) {
+            const cols = lines[lines.length - 1].trim().split(/\s{2,}/);
+            const sessionId = cols[0];
+            const title = cols[1] ?? `New session - ${new Date().toISOString()}`;
+            if (sessionId && sessionId !== beforeSession) {
+                writeLn('');
+                writeLn(`  \x1b[90mSession\x1b[0m   \x1b[97m${title}\x1b[0m`);
+                writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[36mopencode -s ${sessionId}\x1b[0m`);
+            }
+        }
+    }
+    catch {
+        // can't read session info
+    }
 }
 //# sourceMappingURL=flow.js.map
