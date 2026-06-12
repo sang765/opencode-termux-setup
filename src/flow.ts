@@ -38,10 +38,12 @@ export async function runFlow() {
   const installed = getInstalledVersion();
 
   // ASCII logo
-  writeLn(`  \x1b[36m                                       \u2584\x1b[0m`);
-  writeLn(`  \x1b[36m      \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2584 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580\x1b[0m`);
-  writeLn(`  \x1b[36m      \u2580  \u2580 \u2580  \u2580 \u2580\u2580\u2580\u2580 \u2580  \u2580 \u2580    \u2580  \u2580 \u2580  \u2580 \u2580\u2580\u2580\u2580\x1b[0m`);
-  writeLn(`  \x1b[36m      \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580\x1b[0m`);
+  writeLn(`  \x1b[36m\x1b[0m`);
+  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m    \u2588\u2588   \u2588\u2588   \u2588\u2588  \x1b[0m`);
+  writeLn(`  \x1b[36m     \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\x1b[0m`);
   writeLn(`  \x1b[36m\x1b[0m`);
 
   // Show version header

@@ -34,10 +34,12 @@ Missing build tools are auto-installed via `apt` on first run.
 ### Interactive mode (default)
 
 ```
-                                         ▄
-        ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▄ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀
-        ▀  ▀ ▀  ▀ ▀▀▀▀ ▀  ▀ ▀    ▀  ▀ ▀  ▀ ▀▀▀▀
-        ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀
+
+     █████   █████
+    ██   ██   ██
+    ██   ██   ██
+    ██   ██   ██
+     █████   █████
 
   Installed  1.17.4
   Upstream  1.17.4
