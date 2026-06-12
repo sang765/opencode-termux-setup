@@ -111,4 +111,22 @@ export async function runFlow() {
   writeLn(`  \x1b[32m\u2713 Launching OpenCode\x1b[0m`);
 
   await execa('opencode', process.argv.slice(2), { stdio: 'inherit' });
+
+  // Show latest session info
+  try {
+    const { stdout } = await execa('opencode', ['session', 'list']);
+    const lines = stdout.trim().split('\n').filter(Boolean);
+    if (lines.length > 2) {
+      const cols = lines[lines.length - 1].trim().split(/\s{2,}/);
+      const sessionId = cols[0];
+      const title = cols[1] ?? `New session - ${new Date().toISOString()}`;
+      if (sessionId) {
+        writeLn('');
+        writeLn(`  \x1b[90mSession\x1b[0m   \x1b[1;97m${title}\x1b[0m`);
+        writeLn(`  \x1b[90mContinue\x1b[0m  \x1b[1;36mopencode -s ${sessionId}\x1b[0m`);
+      }
+    }
+  } catch {
+    // ignore
+  }
 }
