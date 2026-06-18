@@ -9,6 +9,12 @@ TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) 
 ## Quick start
 
 ```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.sh)
+```
+
+Or with npx:
+
+```bash
 npx -y github:sang765/opencode-termux-setup
 ```
 
