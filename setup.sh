@@ -1,9 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-REPO_URL="https://github.com/sang765/opencode-termux-setup.git"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 packages=(glibc-repo glibc openssl-glibc nodejs)
 
 check_installed() {
