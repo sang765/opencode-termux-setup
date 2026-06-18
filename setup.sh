@@ -37,6 +37,8 @@ done
 check_tool node || needs_install+=("nodejs")
 check_tool npm || needs_install+=("nodejs")
 
+check_tool pnpm || { echo "Installing pnpm..."; npm install -g pnpm; }
+
 if [ ${#needs_install[@]} -gt 0 ]; then
   echo ""
   echo "Installing missing packages: ${needs_install[*]}"
