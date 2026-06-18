@@ -8,11 +8,15 @@ TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) 
 
 ## Quick start
 
+### Recommended — dependency setup check
+
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.sh)
 ```
 
-Or with npx:
+Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `nodejs`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
+
+### Full build pipeline
 
 ```bash
 npx -y github:sang765/opencode-termux-setup
