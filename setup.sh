@@ -39,8 +39,25 @@ check_tool pnpm || { echo "Installing pnpm..."; npm install -g pnpm; }
 if [ ${#needs_install[@]} -gt 0 ]; then
   echo ""
   echo "Installing missing packages: ${needs_install[*]}"
-  pkg update -y
-  pkg install -y "${needs_install[@]}"
+  
+  if [[ " ${needs_install[*]} " =~ " glibc-repo " ]]; then
+    echo "Installing glibc-repo first to enable new mirrors..."
+    pkg update -y
+    pkg install -y glibc-repo
+    pkg update -y
+  fi
+
+  remaining_packages=()
+  for pkg in "${needs_install[@]}"; do
+    if [ "$pkg" != "glibc-repo" ]; then
+      remaining_packages+=("$pkg")
+    fi
+  fi
+
+  if [ ${#remaining_packages[@]} -gt 0 ]; then
+    echo "Installing remaining core packages: ${remaining_packages[*]}..."
+    pkg install -y "${remaining_packages[@]}"
+  fi
   echo ""
 fi
 
