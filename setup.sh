@@ -41,7 +41,7 @@ if [ ${#needs_install[@]} -gt 0 ]; then
   echo "Installing missing packages: ${needs_install[*]}"
   
   if [[ " ${needs_install[*]} " =~ " glibc-repo " ]]; then
-    echo "Installing glibc-repo first to enable new mirrors..."
+    echo "Installing glibc-repo first..."
     pkg update -y
     pkg install -y glibc-repo
     pkg update -y
@@ -52,10 +52,9 @@ if [ ${#needs_install[@]} -gt 0 ]; then
     if [ "$pkg" != "glibc-repo" ]; then
       remaining_packages+=("$pkg")
     fi
-  fi
+  done
 
   if [ ${#remaining_packages[@]} -gt 0 ]; then
-    echo "Installing remaining core packages: ${remaining_packages[*]}..."
     pkg install -y "${remaining_packages[@]}"
   fi
   echo ""
