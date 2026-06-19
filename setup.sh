@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-packages=(glibc-repo glibc openssl-glibc nodejs)
+packages=(glibc-repo glibc openssl-glibc nodejs git tar)
 
 check_installed() {
   if dpkg -s "$1" &>/dev/null 2>&1; then
@@ -33,6 +33,8 @@ done
 
 check_tool node || needs_install+=("nodejs")
 check_tool npm || needs_install+=("nodejs")
+check_tool git || needs_install+=("git")
+check_tool tar || needs_install+=("tar")
 
 check_tool pnpm || { echo "Installing pnpm..."; npm install -g pnpm; }
 
@@ -61,8 +63,6 @@ if [ ${#needs_install[@]} -gt 0 ]; then
 fi
 
 echo "All core dependencies satisfied."
-
-check_tool tar || { echo "Installing tar..."; pkg install -y tar; }
 
 echo ""
 echo "All dependencies satisfied. Running full build pipeline..."
