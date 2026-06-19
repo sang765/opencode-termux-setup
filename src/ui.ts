@@ -52,6 +52,9 @@ function readKey(): Promise<string> {
 }
 
 export async function select(options: string[]): Promise<number | null> {
+  if (!process.stdin.isTTY) {
+    return 0;
+  }
   let selected = 0;
 
   const render = () => {

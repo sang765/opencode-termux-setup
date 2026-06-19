@@ -30,6 +30,9 @@ async function getLatestVersion(): Promise<string> {
 }
 
 function askQuestion(query: string): Promise<boolean> {
+  if (!process.stdin.isTTY) {
+    return Promise.resolve(true);
+  }
   const rl = createInterface({ input: process.stdin, output: process.stderr });
   return new Promise(resolve => {
     rl.question(query, answer => {

@@ -26,6 +26,9 @@ async function getLatestVersion() {
     return stdout.trim();
 }
 function askQuestion(query) {
+    if (!process.stdin.isTTY) {
+        return Promise.resolve(true);
+    }
     const rl = createInterface({ input: process.stdin, output: process.stderr });
     return new Promise(resolve => {
         rl.question(query, answer => {

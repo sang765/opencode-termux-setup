@@ -53,6 +53,9 @@ function readKey() {
     });
 }
 export async function select(options) {
+    if (!process.stdin.isTTY) {
+        return 0;
+    }
     let selected = 0;
     const render = () => {
         for (let i = 0; i < options.length; i++) {

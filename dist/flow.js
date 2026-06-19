@@ -71,10 +71,16 @@ export async function runFlow() {
         writeLn('');
         writeLn(`  \x1b[33mNew version ${upstream} is available\x1b[0m`);
         writeLn('');
-        const choice = await select([
-            `Yes, update to ${upstream}`,
-            'No, skip update',
-        ]);
+        let choice;
+        if (!installed || !process.stdin.isTTY) {
+            choice = 0;
+        }
+        else {
+            choice = await select([
+                `Yes, update to ${upstream}`,
+                'No, skip update',
+            ]);
+        }
         writeLn('');
         if (choice === null) {
             writeLn(`  \x1b[90mexited\x1b[0m`);
