@@ -14,6 +14,12 @@ TypeScript build pipeline for [OpenCode](https://github.com/anomalyco/opencode) 
 curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.sh | bash
 ```
 
+For **fish** users:
+
+```fish
+curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.fish | fish
+```
+
 Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `nodejs`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
 
 ### Full build pipeline
