@@ -1,6 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+if [[ "${SHELL:-}" == *bash* ]] || [[ "$(ps -p $PPID -o comm= 2>/dev/null)" == *bash* ]]; then
+  echo "  ⚠ Running in bash"
+  echo "    Interactive prompts may not work. For a better experience,"
+  echo "    run this script with fish, zsh, or foot."
+  echo ""
+fi
+
 packages=(glibc-repo glibc openssl-glibc nodejs git tar)
 
 check_installed() {
