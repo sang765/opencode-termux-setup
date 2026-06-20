@@ -1,5 +1,4 @@
 #!/usr/bin/env fish
-set -e
 
 switch "$SHELL"
   case '*bash*'
@@ -10,7 +9,7 @@ switch "$SHELL"
 end
 
 function check_installed
-  if dpkg -s $argv[1] &>/dev/null 2>&1
+  if dpkg -s $argv[1] >/dev/null 2>&1
     echo "  ✓ $argv[1] is already installed"
     return 0
   else
