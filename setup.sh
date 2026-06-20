@@ -1,17 +1,17 @@
-#!/data/data/com.termux/files/usr/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-if [[ "${SHELL:-}" == *bash* ]] || [[ "$(ps -p $PPID -o comm= 2>/dev/null)" == *bash* ]]; then
-  echo "  ⚠ Running in bash"
-  echo "    Interactive prompts may not work. For a better experience,"
-  echo "    run this script with fish, zsh, or foot."
-  echo ""
-fi
-
-packages=(glibc-repo glibc openssl-glibc nodejs git tar)
+case "${SHELL:-}" in
+  *bash*) 
+    echo "  ⚠ Running in bash"
+    echo "    Interactive prompts may not work. For a better experience,"
+    echo "    run this script with fish, zsh, or foot."
+    echo ""
+    ;;
+esac
 
 check_installed() {
-  if dpkg -s "$1" &>/dev/null 2>&1; then
+  if dpkg -s "$1" >/dev/null 2>&1; then
     echo "  ✓ $1 is already installed"
     return 0
   else
@@ -21,7 +21,7 @@ check_installed() {
 }
 
 check_tool() {
-  if command -v "$1" &>/dev/null; then
+  if command -v "$1" >/dev/null 2>&1; then
     echo "  ✓ $1 is already installed"
     return 0
   else
@@ -30,41 +30,44 @@ check_tool() {
   fi
 }
 
-needs_install=()
+needs_install=""
 
 echo "Checking core dependencies..."
 
 for pkg in glibc-repo glibc openssl-glibc; do
-  check_installed "$pkg" || needs_install+=("$pkg")
+  check_installed "$pkg" || needs_install="$needs_install $pkg"
 done
 
-check_tool node || needs_install+=("nodejs")
-check_tool npm || needs_install+=("nodejs")
-check_tool git || needs_install+=("git")
-check_tool tar || needs_install+=("tar")
+check_tool node || needs_install="$needs_install nodejs"
+check_tool npm || needs_install="$needs_install nodejs"
+check_tool git || needs_install="$needs_install git"
+check_tool tar || needs_install="$needs_install tar"
 
 check_tool pnpm || { echo "Installing pnpm..."; npm install -g pnpm; }
 
-if [ ${#needs_install[@]} -gt 0 ]; then
+if [ -n "$needs_install" ]; then
   echo ""
-  echo "Installing missing packages: ${needs_install[*]}"
-  
-  if [[ " ${needs_install[*]} " =~ " glibc-repo " ]]; then
-    echo "Installing glibc-repo first..."
-    pkg update -y
-    pkg install -y glibc-repo
-    pkg update -y
-  fi
+  echo "Installing missing packages:$needs_install"
 
-  remaining_packages=()
-  for pkg in "${needs_install[@]}"; do
+  case " $needs_install " in
+    *" glibc-repo "*)
+      echo "Installing glibc-repo first..."
+      pkg update -y
+      pkg install -y glibc-repo
+      pkg update -y
+      ;;
+  esac
+
+  remaining=""
+  for pkg in $needs_install; do
     if [ "$pkg" != "glibc-repo" ]; then
-      remaining_packages+=("$pkg")
+      remaining="$remaining $pkg"
     fi
   done
 
-  if [ ${#remaining_packages[@]} -gt 0 ]; then
-    pkg install -y "${remaining_packages[@]}"
+  if [ -n "$remaining" ]; then
+    # shellcheck disable=SC2086
+    pkg install -y $remaining
   fi
   echo ""
 fi
