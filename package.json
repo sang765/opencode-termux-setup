@@ -8,9 +8,9 @@
     "oc-termux": "./bin/oc-termux"
   },
   "scripts": {
-    "prepublishOnly": "tsc",
-    "build": "tsc",
-    "start": "bun dist/index.js"
+    "prepublishOnly": "bun run node_modules/typescript/bin/tsc",
+    "build": "bun run node_modules/typescript/bin/tsc",
+    "start": "bun src/index.ts"
   },
   "files": [
     "dist/",
