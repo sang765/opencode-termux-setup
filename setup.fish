@@ -30,7 +30,7 @@ end
 
 check_tool bun; or begin
   echo "Installing bun..."
-  curl -fsSL https://bun.sh/install | bash
+  curl -fsSL https://raw.githubusercontent.com/bd-loser/bun-termux/main/scripts/install.sh | bash
 end
 check_tool git; or set needs_install "$needs_install git"
 check_tool tar; or set needs_install "$needs_install tar"

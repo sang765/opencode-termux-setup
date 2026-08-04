@@ -29,7 +29,7 @@ for pkg in glibc-repo glibc openssl-glibc; do
   check_installed "$pkg" || needs_install="$needs_install $pkg"
 done
 
-check_tool bun || { echo "Installing bun..."; curl -fsSL https://bun.sh/install | bash; }
+check_tool bun || { echo "Installing bun..."; curl -fsSL https://raw.githubusercontent.com/bd-loser/bun-termux/main/scripts/install.sh | bash; }
 check_tool git || needs_install="$needs_install git"
 check_tool tar || needs_install="$needs_install tar"
 
