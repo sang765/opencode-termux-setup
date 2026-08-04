@@ -177,16 +177,15 @@ jobs:
             ### First time (For users who are not developing locally and have not installed dependencies)
             ```bash
             apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc
-            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh --repo=sang765/opencode-termux-setup | bash
+            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh | bash
             ```
 
             ### Already installed dependencies
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh --repo=sang765/opencode-termux-setup | bash
+            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh | bash
             ```
 
             This Bash script file will automatically find the latest .deb file in the latest release, download it, and install it for you with `dpkg -i` command.
-            If you wanna change download from other fork, just change `--repo=sang765/opencode-termux-setup` to other repository.
-          files: ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
           draft: false
+          files: ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
           prerelease: false
