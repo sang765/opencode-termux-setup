@@ -185,6 +185,11 @@ jobs:
 
             This Bash script file will automatically find the latest .deb file in the latest release, download it, and install it for you with `dpkg -i` command.
             If you wanna change download from other fork, just change `--repo=sang765/opencode-termux-setup` to other repository.
+
+            **Note:** If you encounter issues, you may need to install glibc compatibility packages:
+            ```bash
+            apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc
+            ```
           files: ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
           draft: false
           prerelease: false

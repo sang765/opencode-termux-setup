@@ -43,6 +43,7 @@ export async function packageDeb(version) {
         'Priority: optional',
         'Description: OpenCode CLI for Termux (AI coding assistant)',
         'Depends: bash, ncurses',
+        'Suggests: glibc, openssl-glibc',
         '',
     ].join('\n');
     await writeFile(resolve(debRoot, 'DEBIAN', 'control'), control);
@@ -104,6 +105,7 @@ arch=(aarch64)
 url="https://github.com/anomalyco/opencode"
 license=('MIT')
 depends=('bash' 'ncurses')
+optdepends=('glibc: glibc compatibility' 'openssl-glibc: openssl glibc compatibility')
 options=('!strip')
 
 package() {
