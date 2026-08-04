@@ -8,8 +8,8 @@
     "oc-termux": "./bin/oc-termux"
   },
   "scripts": {
-    "prepublishOnly": "bun run node_modules/typescript/bin/tsc",
-    "build": "bun run node_modules/typescript/bin/tsc",
+    "prepublishOnly": "bunx tsc",
+    "build": "bunx tsc",
     "start": "bun src/index.ts"
   },
   "files": [
