@@ -10,7 +10,7 @@
   "scripts": {
     "prepublishOnly": "tsc",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "bun dist/index.js"
   },
   "files": [
     "dist/",
@@ -23,11 +23,12 @@
     "execa": "^9.5.2"
   },
   "devDependencies": {
+    "@types/bun": "^1.2.0",
     "@types/node": "^22.15.3",
     "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=20"
+    "bun": ">=1.0"
   },
   "keywords": ["opencode", "termux", "android", "ai", "coding"],
   "license": "MIT"

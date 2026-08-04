@@ -20,12 +20,12 @@ For **fish** users:
 curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.fish | fish
 ```
 
-Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `nodejs`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
+Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `bun`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
 
 ### Version check & update
 
 ```bash
-npx -y github:sang765/opencode-termux-setup
+bunx -y github:sang765/opencode-termux-setup
 ```
 
 This:
@@ -35,26 +35,26 @@ This:
 4. **Outdated?** Prompts with an interactive arrow-key menu
 5. **Up to date?** Prints confirmation and exits
 
-No clone needed — npx fetches and runs everything from GitHub.
+No clone needed — bunx fetches and runs everything from GitHub.
 
 ### Convenience alias
 
 Add this to `~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish` for quick access:
 
 ```bash
-alias oc-termux='npx -y github:sang765/opencode-termux-setup'
+alias oc-termux='bunx -y github:sang765/opencode-termux-setup'
 ```
 
 Or via `pkg` bin name (works with tools that respect npm bins):
 
 ```bash
-npx -y oc-termux
+bunx -y oc-termux
 ```
 
 ## Prerequisites
 
 - Termux on aarch64
-- `pnpm` (`npm install -g pnpm`) — only needed for local development
+- `bun` — only needed for local development
 
 Missing build tools are auto-installed via `apt` on first run.
 
@@ -62,9 +62,9 @@ Missing build tools are auto-installed via `apt` on first run.
 
 | Command | Mode |
 |---|---|
-| `npx -y github:sang765/opencode-termux-setup` | **Check & update** — version check, auto-install or prompt, no launch |
-| `npx -y github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
-| `npx -y github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
+| `bunx -y github:sang765/opencode-termux-setup` | **Check & update** — version check, auto-install or prompt, no launch |
+| `bunx -y github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
+| `bunx -y github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
 
 ### Default mode
 
@@ -93,30 +93,30 @@ When OpenCode is not installed:
 ### Debug mode
 
 ```bash
-npx -y github:sang765/opencode-termux-setup --debug
+bunx -y github:sang765/opencode-termux-setup --debug
 ```
 
 Shows verbose build logs useful for troubleshooting.
 
 > **Note**: `--debug` after the package name passes it to our tool.  
-> `npx --debug ...` is npx's own debug mode — use `-y` instead to skip prompts.
+> `bunx --debug ...` is bunx's own debug mode — use `-y` instead to skip prompts.
 
 ## Local development
 
 ```bash
 git clone https://github.com/sang765/opencode-termux-setup.git
 cd opencode-termux-setup
-pnpm install
-pnpm start                  # interactive mode
-pnpm start --debug          # verbose build
-pnpm start --pkg deb -i     # build and install specific version
-pnpm start -v 1.17.4        # build specific version
+bun install
+bun start                  # interactive mode
+bun start --debug          # verbose build
+bun start --pkg deb -i     # build and install specific version
+bun start -v 1.17.4        # build specific version
 ```
 
 To test the published version locally before release:
 ```bash
 npm pack                     # creates a .tgz
-pnpm dlx ./opencode-termux-setup-*.tgz
+bunx ./opencode-termux-setup-*.tgz
 ```
 
 ### Options

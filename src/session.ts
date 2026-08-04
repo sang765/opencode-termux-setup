@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import { Database } from 'bun:sqlite';
 import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { existsSync } from 'node:fs';
@@ -15,8 +15,8 @@ export function getLatestSession(): SessionInfo | null {
   if (!existsSync(DB_PATH)) return null;
 
   try {
-    const db = new DatabaseSync(DB_PATH);
-    const stmt = db.prepare('SELECT id, title FROM session ORDER BY time_created DESC LIMIT 1');
+    const db = new Database(DB_PATH, { readonly: true });
+    const stmt = db.query('SELECT id, title FROM session ORDER BY time_created DESC LIMIT 1');
     const row = stmt.get() as { id: string; title: string } | undefined;
     db.close();
     if (row && row.id) {

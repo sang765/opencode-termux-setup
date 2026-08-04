@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 import { build } from './build.js';
 import { install } from './install.js';
 import { runFlow } from './flow.js';
@@ -56,8 +56,8 @@ function printHelp() {
 opencode-termux — OpenCode manager for Termux
 
 Usage:
-  npx -y github:sang765/opencode-termux-setup [options]
-  npx -y github:sang765/opencode-termux-setup --debug   Verbose output mode
+  bunx -y github:sang765/opencode-termux-setup [options]
+  bunx -y github:sang765/opencode-termux-setup --debug   Verbose output mode
 
 Modes:
   (no flags)      Interactive: check version, update if needed, run opencode
@@ -73,12 +73,12 @@ Options:
   -h, --help            Show this help
 
 Examples:
-  npx -y github:sang765/opencode-termux-setup              Interactive mode
-  npx -y github:sang765/opencode-termux-setup --debug      Verbose build logs
-  npx -y github:sang765/opencode-termux-setup --pkg deb    Build only
+  bunx -y github:sang765/opencode-termux-setup              Interactive mode
+  bunx -y github:sang765/opencode-termux-setup --debug      Verbose build logs
+  bunx -y github:sang765/opencode-termux-setup --pkg deb    Build only
 
 Note: --debug after the package name is for our tool.
-      npx --debug ... is npx's own debug mode (use -y instead).
+      bunx --debug ... is bunx's own debug mode (use -y instead).
 `);
 }
 async function main() {
