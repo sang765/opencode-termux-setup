@@ -3,14 +3,18 @@ set -euo pipefail
 
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OPENCODE_RUNTIME="$SELF_DIR/../lib/opencode/runtime/opencode"
+ANDROID_FIX_SHIM="$SELF_DIR/../lib/opencode/lib/libbun-android-fix.so"
 STATX_SHIM="$SELF_DIR/../lib/opencode/lib/libstatx-shim.so"
 
-apply_statx_shim() {
-  if [[ "${OPENCODE_DISABLE_STATX_SHIM:-0}" == "1" ]]; then
+apply_shims() {
+  if [[ "${OPENCODE_DISABLE_SHIMS:-0}" == "1" ]]; then
     return
   fi
-  if [[ -f "$STATX_SHIM" ]]; then
-    export LD_PRELOAD="${STATX_SHIM}${LD_PRELOAD:+:$LD_PRELOAD}"
+  local shims=()
+  [[ -f "$ANDROID_FIX_SHIM" ]] && shims+=("$ANDROID_FIX_SHIM")
+  [[ -f "$STATX_SHIM" ]] && shims+=("$STATX_SHIM")
+  if [[ ${#shims[@]} -gt 0 ]]; then
+    export LD_PRELOAD="${shims[*]}${LD_PRELOAD:+:$LD_PRELOAD}"
   fi
 }
 
@@ -58,8 +62,8 @@ cleanup_broken_cached_modules
 export OPENCODE_DISABLE_DEFAULT_PLUGINS
 
 if [[ -x "$OPENCODE_RUNTIME" ]]; then
-  apply_statx_shim
-  export OPENCODE_RUNTIME_SELECTED="glibc-wrapped"
+  apply_shims
+  export OPENCODE_RUNTIME_SELECTED="bun-termux"
   exec "$OPENCODE_RUNTIME" "$@"
 fi
 

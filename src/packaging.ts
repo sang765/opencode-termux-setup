@@ -46,8 +46,7 @@ export async function packageDeb(version?: string): Promise<string> {
     'Section: utils',
     'Priority: optional',
     'Description: OpenCode CLI for Termux (AI coding assistant)',
-    'Depends: glibc, openssl-glibc, bash, ncurses',
-    'Suggests: glibc-runner',
+    'Depends: bash, ncurses',
     '',
   ].join('\n');
 
@@ -121,7 +120,7 @@ pkgdesc="OpenCode CLI for Termux (AI coding assistant)"
 arch=(aarch64)
 url="https://github.com/anomalyco/opencode"
 license=('MIT')
-depends=('glibc' 'openssl-glibc' 'bash' 'ncurses')
+depends=('bash' 'ncurses')
 options=('!strip')
 
 package() {

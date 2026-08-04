@@ -24,10 +24,6 @@ set needs_install ""
 
 echo "Checking core dependencies..."
 
-for pkg in glibc-repo glibc openssl-glibc
-  check_installed $pkg; or set needs_install "$needs_install $pkg"
-end
-
 check_tool bun; or begin
   echo "Installing bun..."
   curl -fsSL https://raw.githubusercontent.com/bd-loser/bun-termux/main/scripts/install.sh | bash
@@ -38,24 +34,7 @@ check_tool tar; or set needs_install "$needs_install tar"
 if test -n "$needs_install"
   echo ""
   echo "Installing missing packages:$needs_install"
-
-  if string match -q "* glibc-repo *" " $needs_install "
-    echo "Installing glibc-repo first..."
-    pkg update -y
-    pkg install -y glibc-repo
-    pkg update -y
-  end
-
-  set remaining ""
-  for pkg in $needs_install
-    if test "$pkg" != "glibc-repo"
-      set remaining "$remaining $pkg"
-    end
-  end
-
-  if test -n "$remaining"
-    pkg install -y $remaining
-  end
+  pkg install -y $needs_install
   echo ""
 end
 

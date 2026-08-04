@@ -20,6 +20,15 @@ export async function stageInstall(runtimePath) {
     }
     await copyFile(runtimePath, resolve(PREFIX, 'lib', 'opencode', 'runtime', 'opencode'));
     await execa('chmod', ['755', resolve(PREFIX, 'lib', 'opencode', 'runtime', 'opencode')]);
+    const shimSrc = resolve(ROOT, 'third-party', 'bun-termux', 'dist', 'libbun-android-fix.so');
+    if (existsSync(shimSrc)) {
+        await copyFile(shimSrc, resolve(PREFIX, 'lib', 'opencode', 'lib', 'libbun-android-fix.so'));
+        await execa('chmod', ['755', resolve(PREFIX, 'lib', 'opencode', 'lib', 'libbun-android-fix.so')]);
+        info('copied libbun-android-fix.so');
+    }
+    else {
+        warn('libbun-android-fix.so not found, LD_PRELOAD shim disabled');
+    }
     const launcherSrc = resolve(ROOT, 'resources', 'launcher.sh');
     if (existsSync(launcherSrc)) {
         await copyFile(launcherSrc, resolve(PREFIX, 'bin', 'opencode'));

@@ -56,21 +56,21 @@ export async function downloadUpstream(version: string, workDir: string): Promis
 }
 
 export async function resolveLoader(loaderDir: string): Promise<string> {
-  if (existsSync(resolve(loaderDir, 'Makefile')) && existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
+  if (existsSync(resolve(loaderDir, 'Makefile')) && existsSync(resolve(loaderDir, 'src', 'libbun-android-fix.c'))) {
     info(`using existing bun-termux at ${loaderDir}`);
     return loaderDir;
   }
 
-  info('cloning bun-termux');
+  info('cloning bd-loser/bun-termux');
   await rm(loaderDir, { recursive: true, force: true });
   await execa('git', [
     'clone', '--depth', '1',
-    'https://github.com/Happ1ness-dev/bun-termux',
+    'https://github.com/bd-loser/bun-termux',
     loaderDir,
   ]);
-  if (!existsSync(resolve(loaderDir, 'Makefile')) || !existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
-    die('cloned bun-termux missing Makefile or replace_runtime.py');
+  if (!existsSync(resolve(loaderDir, 'Makefile')) || !existsSync(resolve(loaderDir, 'src', 'libbun-android-fix.c'))) {
+    die('cloned bun-termux missing Makefile or src/libbun-android-fix.c');
   }
-  success('cloned bun-termux');
+  success('cloned bd-loser/bun-termux');
   return loaderDir;
 }

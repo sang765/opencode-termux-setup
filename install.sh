@@ -39,8 +39,8 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 
 if ! command -v dpkg >/dev/null 2>&1; then
-  echo "Error: dpkg is required. Install glibc first:" >&2
-  echo "  apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc" >&2
+  echo "Error: dpkg is required. Install termux-tools first:" >&2
+  echo "  pkg install -y termux-tools" >&2
   exit 1
 fi
 

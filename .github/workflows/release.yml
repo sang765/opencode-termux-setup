@@ -65,26 +65,26 @@ jobs:
           rm /tmp/ndk.zip
           echo "NDK_ROOT=/opt/android-ndk-r27c" >> "$GITHUB_ENV"
 
-      - name: Build bun-termux wrapper
+      - name: Build libbun-android-fix.so
         if: steps.check.outputs.up_to_date == 'false'
         run: |
-          git clone --depth 1 https://github.com/Happ1ness-dev/bun-termux.git /tmp/bun-termux
+          git clone --depth 1 https://github.com/bd-loser/bun-termux.git /tmp/bun-termux
           cd /tmp/bun-termux
 
           # Use NDK's clang (not system clang) for Android cross-compilation
           NDK_TOOLCHAIN="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64"
-          NDK_CLANG="$NDK_TOOLCHAIN/bin/clang"
+          NDK_CLANG="$NDK_TOOLCHAIN/bin/aarch64-linux-android29-clang"
 
-          # Build the wrapper with Android target
+          # Build the LD_PRELOAD shim
           "$NDK_CLANG" \
-            --target=aarch64-linux-android24 \
-            -Wall -Wextra -Werror=implicit-function-declaration \
-            -Werror=format-security -O2 \
-            -Wl,-z,norelro \
-            -o bun-termux bun-termux.c
+            -shared -fPIC -O2 -Wall -Wextra \
+            -Wno-nonnull-compare \
+            -o dist/libbun-android-fix.so \
+            src/libbun-android-fix.c \
+            -ldl
 
-          echo "bun-termux wrapper built successfully"
-          file bun-termux
+          echo "libbun-android-fix.so built successfully"
+          file dist/libbun-android-fix.so
 
       - name: Download OpenCode binary
         if: steps.check.outputs.up_to_date == 'false'
@@ -96,20 +96,22 @@ jobs:
           tar -xzf /tmp/opencode.tar.gz -C /tmp/opencode-build/
           ls -la /tmp/opencode-build/
 
-      - name: Wrap binary with bun-termux
+      - name: Prepare binary and shim
         if: steps.check.outputs.up_to_date == 'false'
         run: |
-          cd /tmp/bun-termux
           INPUT=$(find /tmp/opencode-build -name 'opencode*' -type f -executable | head -1)
           if [ -z "$INPUT" ]; then
             INPUT=$(find /tmp/opencode-build -name 'opencode*' -type f | head -1)
           fi
           echo "Input binary: $INPUT"
 
-          python3 helper_scripts/replace_runtime.py "$INPUT" /tmp/opencode-termux --wrapper ./bun-termux
+          cp "$INPUT" /tmp/opencode-termux
+          chmod 755 /tmp/opencode-termux
 
-          echo "Wrapped binary:"
+          echo "Binary:"
           file /tmp/opencode-termux
+          echo "Shim:"
+          file /tmp/bun-termux/dist/libbun-android-fix.so
 
       - name: Build .deb package
         if: steps.check.outputs.up_to_date == 'false'
@@ -125,9 +127,13 @@ jobs:
           mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/runtime"
           mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/lib"
 
-          # Copy wrapped binary
+          # Copy binary
           cp /tmp/opencode-termux "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/runtime/opencode"
           chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/runtime/opencode"
+
+          # Copy LD_PRELOAD shim
+          cp /tmp/bun-termux/dist/libbun-android-fix.so "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/lib/"
+          chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode/lib/libbun-android-fix.so"
 
           # Copy launcher script
           cp resources/launcher.sh "$DEB_ROOT/data/data/com.termux/files/usr/bin/opencode"
@@ -142,8 +148,7 @@ jobs:
             "Section: utils" \
             "Priority: optional" \
             "Description: OpenCode CLI for Termux (AI coding assistant)" \
-            "Depends: glibc, openssl-glibc, bash, ncurses" \
-            "Suggests: glibc-runner" \
+            "Depends: bash, ncurses" \
             > "$DEB_ROOT/DEBIAN/control"
 
           # Calculate installed size
@@ -174,13 +179,6 @@ jobs:
 
             ## How to install?
 
-            ### First time (For users who are not developing locally and have not installed dependencies)
-            ```bash
-            apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc
-            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh --repo=sang765/opencode-termux-setup | bash
-            ```
-
-            ### Already installed dependencies
             ```bash
             curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh --repo=sang765/opencode-termux-setup | bash
             ```

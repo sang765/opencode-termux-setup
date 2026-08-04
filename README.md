@@ -20,7 +20,7 @@ For **fish** users:
 curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/setup.fish | fish
 ```
 
-Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `bun`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
+Verifies each dependency (`bun`) individually via `dpkg -s` and installs anything missing. Recommended for first-time setup or troubleshooting.
 
 ### Version check & update
 
@@ -134,7 +134,7 @@ bunx ./opencode-termux-setup-*.tgz
 
 1. Resolves the latest `opencode-linux-arm64` version from npm
 2. Downloads the upstream binary (npm pack, falls back to GitHub release)
-3. Wraps it with [bun-termux](https://github.com/Happ1ness-dev/bun-termux) for Android compatibility (no proot needed)
+3. Compiles [libbun-android-fix.so](https://github.com/bd-loser/bun-termux) LD_PRELOAD shim for Android compatibility (no proot needed)
 4. Stages the install prefix (launcher, runtime, statx seccomp shim)
 5. Builds a `.deb` package
 6. Cleans up intermediate artifacts — only the `.deb` remains
@@ -155,7 +155,7 @@ opencode --version
 ## Credits
 
 - [OpenCode](https://github.com/anomalyco/opencode) — the AI coding assistant this project wraps
-- [bd-loser/bun-termux](https://github.com/bd-loser/bun-termux) — bionic-native Bun for Termux (no proot, no glibc-runner)
+- [bd-loser/bun-termux](https://github.com/bd-loser/bun-termux) — bionic-native Bun for Termux with LD_PRELOAD shim (no proot, no glibc-runner)
 - [Hope2333/opencode-termux](https://github.com/Hope2333/opencode-termux) — original OpenCode for Termux packaging
 
 ## License
