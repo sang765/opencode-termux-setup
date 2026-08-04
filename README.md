@@ -152,6 +152,12 @@ apt install ./packaging/dpkg/opencode_1.17.4_aarch64.deb
 opencode --version
 ```
 
+## Credits
+
+- [OpenCode](https://github.com/anomalyco/opencode) — the AI coding assistant this project wraps
+- [bd-loser/bun-termux](https://github.com/bd-loser/bun-termux) — bionic-native Bun for Termux (no proot, no glibc-runner)
+- [Hope2333/opencode-termux](https://github.com/Hope2333/opencode-termux) — original OpenCode for Termux packaging
+
 ## License
 
 MIT
