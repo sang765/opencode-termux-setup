@@ -1,7 +1,7 @@
 import { execa, execaSync } from 'execa';
 import { info, warn, success, error, die } from './log.js';
 const PREREQS = [
-    { name: 'npm', check: 'npm --version', pkg: 'nodejs' },
+    { name: 'bun', check: 'bun --version' },
     { name: 'tar', check: 'tar --version', pkg: 'tar' },
     { name: 'file', check: 'file --version', pkg: 'file' },
     { name: 'python3', check: 'python3 --version', pkg: 'python' },

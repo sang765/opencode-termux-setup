@@ -49,7 +49,7 @@ export async function build(opts) {
     const workDir = resolve(ROOT, '.work', `opencode-${version}`);
     const runtimeDir = resolve(ROOT, 'artifacts', 'opencode', 'runtime');
     const runtimeOut = resolve(runtimeDir, 'opencode-termux');
-    const loaderDir = resolve(ROOT, 'third-party', 'bun-termux-loader');
+    const loaderDir = resolve(ROOT, 'third-party', 'bun-termux');
     info(`Building OpenCode v${version} for Termux (aarch64)`);
     await mkdir(workDir, { recursive: true });
     await rm(workDir, { recursive: true, force: true });

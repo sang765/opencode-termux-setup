@@ -63,7 +63,7 @@ export async function build(opts: BuildOptions): Promise<string | undefined> {
   const workDir = resolve(ROOT, '.work', `opencode-${version}`);
   const runtimeDir = resolve(ROOT, 'artifacts', 'opencode', 'runtime');
   const runtimeOut = resolve(runtimeDir, 'opencode-termux');
-  const loaderDir = resolve(ROOT, 'third-party', 'bun-termux-loader');
+  const loaderDir = resolve(ROOT, 'third-party', 'bun-termux');
 
   info(`Building OpenCode v${version} for Termux (aarch64)`);
 

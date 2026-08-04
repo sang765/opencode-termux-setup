@@ -1,3 +1,3 @@
 #!/data/data/com.termux/files/usr/bin/bash
 SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
-exec /data/data/com.termux/files/usr/bin/node "$(dirname "$SCRIPT")/../dist/index.js" "$@"
+exec bun "$(dirname "$SCRIPT")/../dist/index.js" "$@"

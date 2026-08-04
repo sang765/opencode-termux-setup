@@ -38,12 +38,9 @@ for pkg in glibc-repo glibc openssl-glibc; do
   check_installed "$pkg" || needs_install="$needs_install $pkg"
 done
 
-check_tool node || needs_install="$needs_install nodejs"
-check_tool npm || needs_install="$needs_install nodejs"
+check_tool bun || { echo "Installing bun..."; curl -fsSL https://bun.sh/install | bash; }
 check_tool git || needs_install="$needs_install git"
 check_tool tar || needs_install="$needs_install tar"
-
-check_tool pnpm || { echo "Installing pnpm..."; npm install -g pnpm; }
 
 if [ -n "$needs_install" ]; then
   echo ""
@@ -76,4 +73,4 @@ echo "All core dependencies satisfied."
 
 echo ""
 echo "All dependencies satisfied. Running full build pipeline..."
-npx -y github:sang765/opencode-termux-setup "$@"
+bunx -y github:sang765/opencode-termux-setup "$@"

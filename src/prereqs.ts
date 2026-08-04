@@ -10,7 +10,7 @@ interface Prereq {
 }
 
 const PREREQS: Prereq[] = [
-  { name: 'npm', check: 'npm --version', pkg: 'nodejs' },
+  { name: 'bun', check: 'bun --version' },
   { name: 'tar', check: 'tar --version', pkg: 'tar' },
   { name: 'file', check: 'file --version', pkg: 'file' },
   { name: 'python3', check: 'python3 --version', pkg: 'python' },
