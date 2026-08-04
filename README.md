@@ -134,7 +134,7 @@ pnpm dlx ./opencode-termux-setup-*.tgz
 
 1. Resolves the latest `opencode-linux-arm64` version from npm
 2. Downloads the upstream binary (npm pack, falls back to GitHub release)
-3. Wraps it with [bun-termux-loader](https://github.com/Hope2333/bun-termux-loader) for Android compatibility (`/system/bin/linker64`)
+3. Wraps it with [bun-termux](https://github.com/Happ1ness-dev/bun-termux) for Android compatibility (no proot needed)
 4. Stages the install prefix (launcher, runtime, statx seccomp shim)
 5. Builds a `.deb` package
 6. Cleans up intermediate artifacts — only the `.deb` remains

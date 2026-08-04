@@ -68,7 +68,7 @@ export async function stageInstall(runtimePath: string): Promise<string> {
     `timestamp=${timestamp}`,
     `component=opencode`,
     `prefix=${PREFIX}`,
-    `runtime_mode=release-loader`,
+    `runtime_mode=bun-termux`,
     `runtime_path=${PREFIX}/lib/opencode/runtime/opencode`,
     '',
   ].join('\n'));

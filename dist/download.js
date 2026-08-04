@@ -57,21 +57,21 @@ export async function downloadUpstream(version, workDir) {
     }
 }
 export async function resolveLoader(loaderDir) {
-    if (existsSync(resolve(loaderDir, 'build.py'))) {
-        info(`using existing loader at ${loaderDir}`);
+    if (existsSync(resolve(loaderDir, 'Makefile')) && existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
+        info(`using existing bun-termux at ${loaderDir}`);
         return loaderDir;
     }
-    info('cloning bun-termux-loader');
+    info('cloning bun-termux');
     await rm(loaderDir, { recursive: true, force: true });
     await execa('git', [
         'clone', '--depth', '1',
-        'https://github.com/Hope2333/bun-termux-loader',
+        'https://github.com/Happ1ness-dev/bun-termux',
         loaderDir,
     ]);
-    if (!existsSync(resolve(loaderDir, 'build.py'))) {
-        die('cloned loader missing build.py');
+    if (!existsSync(resolve(loaderDir, 'Makefile')) || !existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
+        die('cloned bun-termux missing Makefile or replace_runtime.py');
     }
-    success('cloned bun-termux-loader');
+    success('cloned bun-termux');
     return loaderDir;
 }
 //# sourceMappingURL=download.js.map
