@@ -1,13 +1,5 @@
 #!/usr/bin/env fish
 
-switch "$SHELL"
-  case '*bash*'
-    echo "  ⚠ Running in bash"
-    echo "    Interactive prompts may not work. For a better experience,"
-    echo "    run this script with fish, zsh, or foot."
-    echo ""
-end
-
 function check_installed
   if dpkg -s $argv[1] >/dev/null 2>&1
     echo "  ✓ $argv[1] is already installed"

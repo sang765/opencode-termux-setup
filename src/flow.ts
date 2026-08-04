@@ -40,24 +40,7 @@ function isNewer(latest: string, current: string): boolean {
   return false;
 }
 
-function isRunningInBash(): boolean {
-  const shell = process.env.SHELL || '';
-  if (shell.toLowerCase().includes('bash')) return true;
-  try {
-    const comm = readFileSync(`/proc/${process.ppid}/comm`, 'utf-8').trim().toLowerCase();
-    if (comm.includes('bash')) return true;
-  } catch {}
-  return false;
-}
-
 export async function runFlow() {
-  if (isRunningInBash()) {
-    writeLn(`  \x1b[33m\u26a0 Running in bash\x1b[0m`);
-    writeLn(`  \x1b[90m  Interactive prompts may not work. For a better experience,\x1b[0m`);
-    writeLn(`  \x1b[90m  run this script with \x1b[1mfish\x1b[0m\x1b[90m, \x1b[1mzsh\x1b[0m\x1b[90m, or \x1b[1mfoot\x1b[0m\x1b[90m.\x1b[0m`);
-    writeLn('');
-  }
-
   const installed = getInstalledVersion();
 
   // Handle --version flag
