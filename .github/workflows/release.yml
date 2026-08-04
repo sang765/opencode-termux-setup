@@ -71,27 +71,17 @@ jobs:
           git clone --depth 1 https://github.com/Happ1ness-dev/bun-termux.git /tmp/bun-termux
           cd /tmp/bun-termux
 
-          # Set up cross-compilation environment
-          export CC="clang"
-          export CXX="clang++"
-          export TARGET_ARCH=aarch64
-
-          # Find Android sysroot from NDK
+          # Use NDK's clang (not system clang) for Android cross-compilation
           NDK_TOOLCHAIN="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64"
-          SYSROOT="$NDK_TOOLCHAIN/sysroot"
+          NDK_CLANG="$NDK_TOOLCHAIN/bin/clang"
 
           # Build the wrapper with Android target
-          clang \
-            --target=aarch64-linux-android \
-            --sysroot="$SYSROOT" \
+          "$NDK_CLANG" \
+            --target=aarch64-linux-android24 \
             -Wall -Wextra -Werror=implicit-function-declaration \
             -Werror=format-security -O2 \
             -Wl,-z,norelro \
             -o bun-termux bun-termux.c
-
-          # Build the shim for glibc (this runs on the device, not host)
-          # We need a glibc toolchain for this - skip shim for now
-          # The wrapper alone is sufficient for basic usage
 
           echo "bun-termux wrapper built successfully"
           file bun-termux
