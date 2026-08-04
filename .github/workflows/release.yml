@@ -164,7 +164,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.check.outputs.opencode_version }}
-          name: OpenCode for Termux ${{ steps.check.outputs.opencode_version }}
+          name: v${{ steps.check.outputs.opencode_version }}
           body: |
             # OpenCode for Termux ${{ steps.check.outputs.opencode_version }}
 
