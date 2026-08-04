@@ -106,7 +106,7 @@ jobs:
           fi
           echo "Input binary: $INPUT"
 
-          python3 replace_runtime.py "$INPUT" /tmp/opencode-termux --wrapper ./bun-termux
+          python3 helper_scripts/replace_runtime.py "$INPUT" /tmp/opencode-termux --wrapper ./bun-termux
 
           echo "Wrapped binary:"
           file /tmp/opencode-termux
