@@ -17,7 +17,7 @@ function getInstalledVersion() {
     }
 }
 async function fetchUpstreamVersion() {
-    const { stdout } = await execa('npm', ['view', 'opencode-linux-arm64', 'version']);
+    const { stdout } = await execa('bun', ['pm', 'view', 'opencode-linux-arm64', 'version']);
     const version = stdout.trim();
     await setCachedVersion(version);
     return version;

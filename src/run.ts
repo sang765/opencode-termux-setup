@@ -25,7 +25,7 @@ function getInstalledVersion(): string | null {
 }
 
 async function getLatestVersion(): Promise<string> {
-  const { stdout } = await execa('npm', ['view', 'opencode-linux-arm64', 'version']);
+  const { stdout } = await execa('bun', ['pm', 'view', 'opencode-linux-arm64', 'version']);
   return stdout.trim();
 }
 

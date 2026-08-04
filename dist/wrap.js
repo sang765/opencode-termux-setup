@@ -12,7 +12,7 @@ export async function wrapBinary(upstreamBin, runtimeOut, loaderDir) {
         die('bun-termux wrapper not built');
     info('wrapping upstream binary for Termux/Android');
     await execa('python3', [
-        'replace_runtime.py',
+        'helper_scripts/replace_runtime.py',
         upstreamBin,
         runtimeOut,
         '--wrapper', wrapperBin,

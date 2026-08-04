@@ -19,7 +19,7 @@ export async function wrapBinary(
 
   info('wrapping upstream binary for Termux/Android');
   await execa('python3', [
-    'replace_runtime.py',
+    'helper_scripts/replace_runtime.py',
     upstreamBin,
     runtimeOut,
     '--wrapper', wrapperBin,

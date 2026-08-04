@@ -8,7 +8,7 @@ const NPM_PKG = 'opencode-linux-arm64';
 
 export async function resolveVersion(ver?: string): Promise<string> {
   if (ver) return ver;
-  const { stdout } = await execa('npm', ['view', NPM_PKG, 'version']);
+  const { stdout } = await execa('bun', ['pm', 'view', NPM_PKG, 'version']);
   const version = stdout.trim();
   if (!version) die('unable to resolve latest version from npm');
   info(`resolved latest version: ${version}`);
@@ -20,13 +20,13 @@ export async function downloadUpstream(version: string, workDir: string): Promis
   const binPath = resolve(binDir, 'opencode');
 
   info(`downloading ${NPM_PKG}@${version} from npm`);
-  const tgz = `${NPM_PKG}-${version}.tgz`;
 
   try {
-    await execa('npm', ['pack', `${NPM_PKG}@${version}`], { cwd: workDir });
-    if (!existsSync(resolve(workDir, tgz))) throw new Error('npm pack did not produce expected tgz');
-    await execa('tar', ['-xzf', tgz], { cwd: workDir });
-    if (!existsSync(binPath)) throw new Error('binary not found after extraction');
+    await execa('bun', ['add', `${NPM_PKG}@${version}`], { cwd: workDir });
+    const pkgDir = resolve(workDir, 'node_modules', NPM_PKG);
+    if (!existsSync(pkgDir)) throw new Error('bun add did not install expected package');
+    await execa('cp', ['-r', `${pkgDir}/.`, binDir]);
+    if (!existsSync(binPath)) throw new Error('binary not found after install');
     success('downloaded upstream binary from npm');
     return binPath;
   } catch (npmErr) {
@@ -56,7 +56,7 @@ export async function downloadUpstream(version: string, workDir: string): Promis
 }
 
 export async function resolveLoader(loaderDir: string): Promise<string> {
-  if (existsSync(resolve(loaderDir, 'Makefile')) && existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
+  if (existsSync(resolve(loaderDir, 'Makefile')) && existsSync(resolve(loaderDir, 'helper_scripts', 'replace_runtime.py'))) {
     info(`using existing bun-termux at ${loaderDir}`);
     return loaderDir;
   }
@@ -68,7 +68,7 @@ export async function resolveLoader(loaderDir: string): Promise<string> {
     'https://github.com/Happ1ness-dev/bun-termux',
     loaderDir,
   ]);
-  if (!existsSync(resolve(loaderDir, 'Makefile')) || !existsSync(resolve(loaderDir, 'replace_runtime.py'))) {
+  if (!existsSync(resolve(loaderDir, 'Makefile')) || !existsSync(resolve(loaderDir, 'helper_scripts', 'replace_runtime.py'))) {
     die('cloned bun-termux missing Makefile or replace_runtime.py');
   }
   success('cloned bun-termux');
