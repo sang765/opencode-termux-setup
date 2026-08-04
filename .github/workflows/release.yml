@@ -144,17 +144,17 @@ jobs:
           chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/bin/opencode"
 
           # Create control file
-          cat > "$DEB_ROOT/DEBIAN/control" <<EOF
-Package: opencode
-Version: $VERSION
-Architecture: $ARCH
-Maintainer: opencode-termux <opencode@termux.dev>
-Section: utils
-Priority: optional
-Description: OpenCode CLI for Termux (AI coding assistant)
-Depends: glibc, openssl-glibc, bash, ncurses
-Suggests: glibc-runner
-EOF
+          printf '%s\n' \
+            "Package: opencode" \
+            "Version: $VERSION" \
+            "Architecture: $ARCH" \
+            "Maintainer: opencode-termux <opencode@termux.dev>" \
+            "Section: utils" \
+            "Priority: optional" \
+            "Description: OpenCode CLI for Termux (AI coding assistant)" \
+            "Depends: glibc, openssl-glibc, bash, ncurses" \
+            "Suggests: glibc-runner" \
+            > "$DEB_ROOT/DEBIAN/control"
 
           # Calculate installed size
           SIZE=$(du -sk "$DEB_ROOT" | cut -f1)
