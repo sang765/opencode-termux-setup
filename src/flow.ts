@@ -68,8 +68,11 @@ export async function runFlow() {
   try {
     upstream = await upstreamPromise;
     writeLn(`  \x1b[90mUpstream\x1b[0m  \x1b[97m${upstream}\x1b[0m`);
-  } catch {
+  } catch (err) {
     writeLn(`  \x1b[90mUpstream\x1b[0m  \x1b[31mcould not check\x1b[0m`);
+    const stack = err instanceof Error ? err.stack : String(err);
+    writeLn(`\n\x1b[90mStacktrace:\x1b[0m`);
+    writeLn(`\x1b[31m${stack}\x1b[0m`);
   }
 
   const needsUpdate = upstream && (!installed || isNewer(upstream, installed));
