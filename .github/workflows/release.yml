@@ -265,7 +265,8 @@ jobs:
             ### bun_${{ steps.check.outputs.bun_version }}_aarch64.deb
             Bun runtime for Termux (without proot)
 
-            **Note:** Installing the bun package will automatically install glibc dependencies (glibc-repo, glibc, openssl-glibc).
+            > [!NOTE]
+            > Installing the bun package will automatically install glibc dependencies (glibc-repo, glibc, openssl-glibc).
 
             ## How to install?
 
