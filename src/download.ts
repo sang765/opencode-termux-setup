@@ -8,8 +8,10 @@ const NPM_PKG = 'opencode-linux-arm64';
 
 export async function resolveVersion(ver?: string): Promise<string> {
   if (ver) return ver;
-  const { stdout } = await execa('bun', ['pm', 'view', NPM_PKG, 'version']);
-  const version = stdout.trim();
+  const res = await fetch(`https://registry.npmjs.org/${NPM_PKG}/latest`);
+  if (!res.ok) die(`unable to resolve latest version from npm (HTTP ${res.status})`);
+  const data = await res.json() as { version: string };
+  const version = data.version;
   if (!version) die('unable to resolve latest version from npm');
   info(`resolved latest version: ${version}`);
   return version;

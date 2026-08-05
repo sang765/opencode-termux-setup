@@ -18,8 +18,10 @@ function getInstalledVersion(): string | null {
 }
 
 async function fetchUpstreamVersion(): Promise<string> {
-  const { stdout } = await execa('bun', ['pm', 'view', 'opencode-linux-arm64', 'version']);
-  const version = stdout.trim();
+  const res = await fetch('https://registry.npmjs.org/opencode-linux-arm64/latest');
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json() as { version: string };
+  const version = data.version;
   await setCachedVersion(version);
   return version;
 }

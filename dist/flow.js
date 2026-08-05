@@ -1,4 +1,4 @@
-import { execa, execaSync } from 'execa';
+import { execaSync } from 'execa';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setSilent } from './log.js';
@@ -17,8 +17,11 @@ function getInstalledVersion() {
     }
 }
 async function fetchUpstreamVersion() {
-    const { stdout } = await execa('bun', ['pm', 'view', 'opencode-linux-arm64', 'version']);
-    const version = stdout.trim();
+    const res = await fetch('https://registry.npmjs.org/opencode-linux-arm64/latest');
+    if (!res.ok)
+        throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const version = data.version;
     await setCachedVersion(version);
     return version;
 }

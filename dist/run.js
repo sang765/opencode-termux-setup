@@ -22,8 +22,11 @@ function getInstalledVersion() {
     }
 }
 async function getLatestVersion() {
-    const { stdout } = await execa('bun', ['pm', 'view', 'opencode-linux-arm64', 'version']);
-    return stdout.trim();
+    const res = await fetch('https://registry.npmjs.org/opencode-linux-arm64/latest');
+    if (!res.ok)
+        throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.version;
 }
 function askQuestion(query) {
     if (!process.stdin.isTTY) {
