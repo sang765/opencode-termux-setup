@@ -102,17 +102,6 @@ check_network() {
   log_verbose "Network OK"
 }
 
-check_disk_space() {
-  local required_mb=${1:-50}
-  local available_mb
-  available_mb=$(df -m "${TMPDIR:-/tmp}" 2>/dev/null | awk 'NR==2{print $4}' || echo "0")
-  if [[ "$available_mb" -lt "$required_mb" ]]; then
-    log_error "Insufficient disk space. Need ${required_mb}MB, have ${available_mb}MB available."
-    exit 1
-  fi
-  log_verbose "Disk space OK: ${available_mb}MB available"
-}
-
 check_arch() {
   local arch
   arch=$(uname -m)
@@ -355,7 +344,6 @@ main() {
 
   if [[ "$SKIP_DEPS" != "1" ]]; then
     check_network
-    check_disk_space 50
   fi
 
   # Version checking
