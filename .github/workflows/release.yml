@@ -227,8 +227,8 @@ jobs:
             "Section: devel" \
             "Priority: optional" \
             "Description: Bun runtime for Termux (without proot)" \
-            "Depends: bash" \
-            "Suggests: glibc-repo, glibc, glibc-runner" \
+            "Depends: bash, glibc-repo, glibc, openssl-glibc" \
+            "Suggests: glibc-runner" \
             > "$DEB_ROOT/DEBIAN/control"
 
           # Calculate installed size
@@ -264,6 +264,8 @@ jobs:
 
             ### bun_${{ steps.check.outputs.bun_version }}_aarch64.deb
             Bun runtime for Termux (without proot)
+
+            **Note:** Installing the bun package will automatically install glibc dependencies (glibc-repo, glibc, openssl-glibc).
 
             ## How to install?
 
