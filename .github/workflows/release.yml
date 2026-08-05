@@ -159,6 +159,91 @@ jobs:
           echo "deb_path=release/$DEB_NAME" >> "$GITHUB_OUTPUT"
           echo "deb_file=$DEB_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Download Bun binary
+        if: steps.check.outputs.up_to_date == 'false'
+        run: |
+          BUN_JSON=$(curl -fsSL https://api.github.com/repos/oven-sh/bun/releases/latest)
+          BUN_VERSION=$(echo "$BUN_JSON" | grep '"tag_name"' | sed 's/.*"tag_name": *"bun-v\([^"]*\)".*/\1/')
+          echo "Bun version: $BUN_VERSION"
+
+          curl -fSL -o /tmp/bun.zip \
+            "https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/bun-linux-aarch64-android.zip"
+          mkdir -p /tmp/bun-build
+          unzip -q /tmp/bun.zip -d /tmp/bun-build/
+          ls -la /tmp/bun-build/
+
+          echo "bun_version=$BUN_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Wrap Bun with bun-termux
+        if: steps.check.outputs.up_to_date == 'false'
+        run: |
+          cd /tmp/bun-termux
+          INPUT=$(find /tmp/bun-build -name 'bun' -type f -executable | head -1)
+          if [ -z "$INPUT" ]; then
+            INPUT=$(find /tmp/bun-build -name 'bun' -type f | head -1)
+          fi
+          echo "Input binary: $INPUT"
+
+          python3 helper_scripts/replace_runtime.py "$INPUT" /tmp/bun-termux-bin --wrapper ./bun-termux
+
+          echo "Wrapped binary:"
+          file /tmp/bun-termux-bin
+
+      - name: Build bun .deb package
+        if: steps.check.outputs.up_to_date == 'false'
+        id: build-bun
+        run: |
+          OPENCODE_VERSION="${{ steps.check.outputs.opencode_version }}"
+          BUN_VERSION="${{ steps.check.outputs.bun_version }}"
+          ARCH="aarch64"
+          DEB_NAME="bun_${BUN_VERSION}_${ARCH}.deb"
+          DEB_ROOT="/tmp/bun-deb-root"
+
+          mkdir -p "$DEB_ROOT/DEBIAN"
+          mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/bin"
+          mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/lib/bun/runtime"
+
+          # Copy wrapped binary
+          cp /tmp/bun-termux-bin "$DEB_ROOT/data/data/com.termux/files/usr/lib/bun/runtime/bun"
+          chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/lib/bun/runtime/bun"
+
+          # Copy launcher script
+          cp resources/bun-launcher.sh "$DEB_ROOT/data/data/com.termux/files/usr/bin/bun"
+          chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/bin/bun"
+
+          # Create symlinks for node and npm
+          cd "$DEB_ROOT/data/data/com.termux/files/usr/bin"
+          ln -sf bun node
+          ln -sf bun npm
+          ln -sf bun npx
+          cd -
+
+          # Create control file
+          printf '%s\n' \
+            "Package: bun-termux" \
+            "Version: $BUN_VERSION" \
+            "Architecture: $ARCH" \
+            "Maintainer: opencode-termux <opencode@termux.dev>" \
+            "Section: devel" \
+            "Priority: optional" \
+            "Description: Bun runtime for Termux (without proot)" \
+            "Depends: bash" \
+            "Suggests: glibc-repo, glibc, glibc-runner" \
+            > "$DEB_ROOT/DEBIAN/control"
+
+          # Calculate installed size
+          SIZE=$(du -sk "$DEB_ROOT" | cut -f1)
+          echo "Installed-Size: $SIZE" >> "$DEB_ROOT/DEBIAN/control"
+
+          # Build .deb
+          dpkg-deb --build "$DEB_ROOT" "/tmp/$DEB_NAME"
+
+          # Copy to workspace
+          mkdir -p "${{ github.workspace }}/release"
+          cp "/tmp/$DEB_NAME" "${{ github.workspace }}/release/"
+          echo "bun_deb_path=release/$DEB_NAME" >> "$GITHUB_OUTPUT"
+          echo "bun_deb_file=$DEB_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Create release
         if: steps.check.outputs.up_to_date == 'false'
         uses: softprops/action-gh-release@v2
@@ -171,6 +256,14 @@ jobs:
             ## Release note from [OpenCode](https://github.com/anomalyco/opencode)
 
             ${{ steps.check.outputs.opencode_body }}
+
+            ## Packages
+
+            ### opencode_${{ steps.check.outputs.opencode_version }}_aarch64.deb
+            OpenCode CLI for Termux (AI coding assistant)
+
+            ### bun_${{ steps.check.outputs.bun_version }}_aarch64.deb
+            Bun runtime for Termux (without proot)
 
             ## How to install?
 
@@ -187,5 +280,7 @@ jobs:
 
             This Bash script file will automatically find the latest .deb file in the latest release, download it, and install it for you with `dpkg -i` command.
           draft: false
-          files: ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
+          files: |
+            ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
+            ${{ github.workspace }}/release/${{ steps.build-bun.outputs.bun_deb_file }}
           prerelease: false
