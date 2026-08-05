@@ -397,13 +397,13 @@ main() {
   if [[ -n "$INSTALLED_VERSION" && "$FORCE" != "1" ]]; then
     local cmp_result=0
     compare_versions "$INSTALLED_VERSION" "$TARGET_VERSION" || cmp_result=$?
-    if [[ $cmp_result -eq 0 ]]; then
+    if (( cmp_result == 0 )); then
       echo ""
       log_success "Already installed and up-to-date!"
       echo ""
       log_info "Run: ${BOLD}opencode --version${NC}"
       exit 0
-    elif [[ $cmp_result -eq 1 ]]; then
+    elif (( cmp_result == 1 )); then
       echo ""
       log_warn "Installed version ($INSTALLED_VERSION) is newer than target ($TARGET_VERSION)"
       if [[ "$DRY_RUN" == "1" ]]; then
