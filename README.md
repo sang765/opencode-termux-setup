@@ -1,5 +1,9 @@
 <p align="center">
-  <img src=".github/assets/logo-ornate-dark.svg" alt="OpenCode" width="234">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-ornate-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset=".github/assets/logo-ornate-light.svg">
+    <img alt="OpenCode" src=".github/assets/logo-ornate-dark.svg" width="234">
+  </picture>
 </p>
 
 <h1 align="center">opencode-termux-setup</h1>
