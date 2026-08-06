@@ -25,7 +25,7 @@ Verifies each dependency (`glibc-repo`, `glibc`, `openssl-glibc`, `bun`) individ
 ### Version check & update
 
 ```bash
-bunx -y github:sang765/opencode-termux-setup
+bunx -y github:sang765/opencode-termux-setup#main
 ```
 
 This:
@@ -42,7 +42,7 @@ No clone needed — bunx fetches and runs everything from GitHub.
 Add this to `~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish` for quick access:
 
 ```bash
-alias oc-termux='bunx -y github:sang765/opencode-termux-setup'
+alias oc-termux='bunx -y github:sang765/opencode-termux-setup#main'
 ```
 
 Or via `pkg` bin name (works with tools that respect npm bins):
@@ -62,9 +62,9 @@ Missing build tools are auto-installed via `apt` on first run.
 
 | Command | Mode |
 |---|---|
-| `bunx -y github:sang765/opencode-termux-setup` | **Check & update** — version check, auto-install or prompt, no launch |
-| `bunx -y github:sang765/opencode-termux-setup --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
-| `bunx -y github:sang765/opencode-termux-setup --pkg deb` | **Build only** — create `.deb` without installing |
+| `bunx -y github:sang765/opencode-termux-setup#main` | **Check & update** — version check, auto-install or prompt, no launch |
+| `bunx -y github:sang765/opencode-termux-setup#main --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
+| `bunx -y github:sang765/opencode-termux-setup#main --pkg deb` | **Build only** — create `.deb` without installing |
 
 ### Default mode
 
@@ -93,7 +93,7 @@ When OpenCode is not installed:
 ### Debug mode
 
 ```bash
-bunx -y github:sang765/opencode-termux-setup --debug
+bunx -y github:sang765/opencode-termux-setup#main --debug
 ```
 
 Shows verbose build logs useful for troubleshooting.
