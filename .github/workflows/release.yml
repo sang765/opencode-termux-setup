@@ -161,6 +161,7 @@ jobs:
 
       - name: Download Bun binary
         if: steps.check.outputs.up_to_date == 'false'
+        id: download-bun
         run: |
           BUN_JSON=$(curl -fsSL https://api.github.com/repos/oven-sh/bun/releases/latest)
           BUN_VERSION=$(echo "$BUN_JSON" | grep '"tag_name"' | sed 's/.*"tag_name": *"bun-v\([^"]*\)".*/\1/')
@@ -196,7 +197,7 @@ jobs:
         id: build-bun
         run: |
           OPENCODE_VERSION="${{ steps.check.outputs.opencode_version }}"
-          BUN_VERSION="${{ steps.check.outputs.bun_version }}"
+          BUN_VERSION="${{ steps.download-bun.outputs.bun_version }}"
           ARCH="aarch64"
           DEB_NAME="bun_${BUN_VERSION}_${ARCH}.deb"
           DEB_ROOT="/tmp/bun-deb-root"
@@ -264,7 +265,7 @@ jobs:
             ### opencode_${{ steps.check.outputs.opencode_version }}_aarch64.deb
             OpenCode CLI for Termux (AI coding assistant)
 
-            ### bun_${{ steps.check.outputs.bun_version }}_aarch64.deb
+            ### bun_${{ steps.download-bun.outputs.bun_version }}_aarch64.deb
             Bun runtime for Termux (without proot)
 
             > [!NOTE]
