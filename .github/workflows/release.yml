@@ -174,19 +174,21 @@ jobs:
 
           echo "bun_version=$BUN_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Wrap Bun with bun-termux
+      - name: Prepare Bun binary
         if: steps.check.outputs.up_to_date == 'false'
         run: |
-          cd /tmp/bun-termux
+          # Bun Android release is already a native Android binary (uses /system/bin/linker64),
+          # so it doesn't need bun-termux wrapping like the OpenCode binary does.
           INPUT=$(find /tmp/bun-build -name 'bun' -type f -executable | head -1)
           if [ -z "$INPUT" ]; then
             INPUT=$(find /tmp/bun-build -name 'bun' -type f | head -1)
           fi
           echo "Input binary: $INPUT"
 
-          python3 helper_scripts/replace_runtime.py "$INPUT" /tmp/bun-termux-bin --wrapper ./bun-termux
+          cp "$INPUT" /tmp/bun-termux-bin
+          chmod 755 /tmp/bun-termux-bin
 
-          echo "Wrapped binary:"
+          echo "Bun binary (native Android, no wrapping needed):"
           file /tmp/bun-termux-bin
 
       - name: Build bun .deb package
