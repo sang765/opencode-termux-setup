@@ -11,6 +11,17 @@ set -euo pipefail
 #   https://github.com/Happ1ness-dev/bun-termux
 # Or download bun via the package I put in the release.
 
+echo "IMPORTANT: Before running OpenCode, make sure you install all dependencies:"
+echo "  - bun, glibc-repo, glibc, and openssl-glibc"
+echo ""
+echo "Install glibc dependencies with:"
+echo "  apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc"
+echo ""
+echo "For bun, I recommend using the build from this repository:"
+echo "  https://github.com/Happ1ness-dev/bun-termux"
+echo "Or download bun via the package I put in the release."
+echo ""
+
 REPO="sang765/opencode-termux-setup"
 DEB_PATTERN="opencode_.*_aarch64\\.deb"
 
