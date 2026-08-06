@@ -1,4 +1,15 @@
-# opencode-termux-setup
+<p align="center">
+  <img src=".github/assets/logo-ornate-dark.svg" alt="OpenCode" width="234">
+</p>
+
+<h1 align="center">opencode-termux-setup</h1>
+
+<p align="center">
+  <a href="https://github.com/sang765/opencode-termux-setup/blob/main/LICENSE"><img src="https://img.shields.io/github/license/sang765/opencode-termux-setup" alt="License"></a>
+  <a href="https://www.npmjs.com/package/@sang765/opencode-termux-setup"><img src="https://img.shields.io/npm/v/@sang765/opencode-termux-setup" alt="npm version"></a>
+  <a href="https://github.com/sang765/opencode-termux-setup/stargazers"><img src="https://img.shields.io/github/stars/sang765/opencode-termux-setup" alt="GitHub stars"></a>
+  <a href="https://github.com/sang765/opencode-termux-setup/issues"><img src="https://img.shields.io/github/issues/sang765/opencode-termux-setup" alt="GitHub issues"></a>
+</p>
 
 ![Screenshot](.github/assets/Screenshot_20260612-182302.jpg)
 
