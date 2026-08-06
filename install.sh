@@ -1,6 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+# IMPORTANT: Before running OpenCode, make sure you install all dependencies:
+# - bun, glibc-repo, glibc, and openssl-glibc
+#
+# Install glibc dependencies with:
+#   apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc
+#
+# For bun, I recommend using the build from this repository:
+#   https://github.com/Happ1ness-dev/bun-termux
+# Or download bun via the package I put in the release.
+
 REPO="sang765/opencode-termux-setup"
 DEB_PATTERN="opencode_.*_aarch64\\.deb"
 
