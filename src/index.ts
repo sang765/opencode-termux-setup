@@ -4,6 +4,7 @@ import { install } from './install.js';
 import { runFlow } from './flow.js';
 import { run } from './run.js';
 import { error as logError } from './log.js';
+import { getVariant, type VariantId } from './variants.js';
 
 const DEBUG_FLAGS = new Set(['--version', '-v', '--pkg', '--install', '-i', '--keep', '-k', '--debug']);
 
@@ -14,10 +15,11 @@ interface CliArgs {
   keep: boolean;
   help: boolean;
   debug: boolean;
+  variant: VariantId;
 }
 
 function parseArgs(argv: string[]): { args: CliArgs; opencodeArgs: string[]; buildMode: boolean } {
-  const args: CliArgs = { pkg: 'deb', install: false, keep: false, help: false, debug: false };
+  const args: CliArgs = { pkg: 'deb', install: false, keep: false, help: false, debug: false, variant: 'v1' };
   let buildMode = false;
   const opencodeArgs: string[] = [];
   let afterSep = false;
@@ -60,6 +62,10 @@ function parseArgs(argv: string[]): { args: CliArgs; opencodeArgs: string[]; bui
       case '-k':
         args.keep = true;
         break;
+      case '--v2':
+      case '-2':
+        args.variant = 'v2';
+        break;
       case '--help':
       case '-h':
         args.help = true;
@@ -85,6 +91,7 @@ Modes:
 Options:
   -v, --version <ver>   Version to build (default: latest from npm)
   --pkg <type>          Package type: deb | pacman | both (default: deb)
+  -2, --v2              Build/run OpenCode V2 (opencode2)
   -i, --install         Install the .deb after building
   -k, --keep            Keep temporary work directory
   --debug               Show verbose build output
@@ -94,6 +101,7 @@ Examples:
   bunx -y github:sang765/opencode-termux-setup              Interactive mode
   bunx -y github:sang765/opencode-termux-setup --debug      Verbose build logs
   bunx -y github:sang765/opencode-termux-setup --pkg deb    Build only
+  bunx -y github:sang765/opencode-termux-setup --v2 --pkg deb   Build OpenCode V2
 
 Note: --debug after the package name is for our tool.
       bunx --debug ... is bunx's own debug mode (use -y instead).
@@ -102,6 +110,7 @@ Note: --debug after the package name is for our tool.
 
 async function main() {
   const { args, opencodeArgs, buildMode } = parseArgs(process.argv);
+  const variant = getVariant(args.variant);
 
   if (args.help) {
     printHelp();
@@ -119,17 +128,18 @@ async function main() {
       version: args.version,
       pkg: args.pkg,
       keepWork: args.keep,
+      variant: args.variant,
     });
 
     if (args.install && debPath) {
-      await install(debPath);
+      await install(debPath, variant.binName);
     }
   } else if (opencodeArgs.length > 0) {
     // Args passed directly to opencode
-    await run(opencodeArgs);
+    await run(opencodeArgs, variant);
   } else {
     // Simple interactive mode
-    await runFlow();
+    await runFlow(variant);
   }
 }
 
