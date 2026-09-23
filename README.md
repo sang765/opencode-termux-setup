@@ -69,8 +69,17 @@ bunx -y oc-termux
 
 - Termux on aarch64
 - `bun` — only needed for local development
+- [bun-termux](https://github.com/Happ1ness-dev/bun-termux) (`buno` engine) — required at runtime
 
 Missing build tools are auto-installed via `apt` on first run.
+
+> **OpenCode V2 (`opencode2`)**: the upstream binary is compiled with a specific Bun version (e.g. `2.0.14` → Bun **1.4.2**). Your `buno` engine must be **≥** that version or the background server crashes with `SyntaxError` on system prompt `.txt` files. Update with:
+>
+> ```bash
+> bun-termux-manager update bun   # or: btm update bun
+> ```
+>
+> The build fails early with the same message if the engine is too old.
 
 ## Modes
 
@@ -156,6 +165,8 @@ bunx ./opencode-termux-setup-*.tgz
 6. Cleans up intermediate artifacts — only the `.deb` remains
 
 With `--v2`, sources switch to npm `@opencode/cli-linux-arm64` (fallback `https://opencode.ai/files/bin/<ver>/opencode-linux-arm64.tar.gz`) and install as `opencode2` alongside `opencode`.
+
+> **Warning — V2 runtime**: `opencode2` needs `buno` ≥ the Bun version used to compile the upstream binary (currently Bun 1.4.2 for OpenCode 2.0.x). If `buno` is older, `opencode2 --version` still works but starting the server fails with `SyntaxError: Unexpected identifier ... system-*.txt`. Fix: `bun-termux-manager update bun`.
 
 ## Output
 
