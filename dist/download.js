@@ -1,13 +1,13 @@
 import { execa } from 'execa';
 import { existsSync } from 'node:fs';
 import { mkdir, rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { info, warn, success, die } from './log.js';
-const NPM_PKG = 'opencode-linux-arm64';
-export async function resolveVersion(ver) {
+import { V1 } from './variants.js';
+export async function resolveVersion(ver, variant = V1) {
     if (ver)
         return ver;
-    const res = await fetch(`https://registry.npmjs.org/${NPM_PKG}/latest`);
+    const res = await fetch(`https://registry.npmjs.org/${variant.npmPkg}/latest`);
     if (!res.ok)
         die(`unable to resolve latest version from npm (HTTP ${res.status})`);
     const data = await res.json();
@@ -17,45 +17,52 @@ export async function resolveVersion(ver) {
     info(`resolved latest version: ${version}`);
     return version;
 }
-export async function downloadUpstream(version, workDir) {
-    const binDir = resolve(workDir, 'package', 'bin');
-    const binPath = resolve(binDir, 'opencode');
-    info(`downloading ${NPM_PKG}@${version} from npm`);
+async function locateBinary(workDir) {
+    for (const rel of ['package/bin/opencode', 'package/opencode', 'opencode', 'opencode-linux-arm64']) {
+        const p = resolve(workDir, rel);
+        if (existsSync(p))
+            return p;
+    }
+    const { stdout } = await execa('find', [workDir, '-maxdepth', '3', '-type', 'f', '(',
+        '-name', 'opencode', '-o', '-name', 'opencode-*', ')', '-perm', '-u+x']);
+    return stdout.split('\n')[0]?.trim() || '';
+}
+export async function downloadUpstream(version, workDir, variant = V1) {
+    const binPath = resolve(workDir, 'package', 'bin', 'opencode');
+    info(`downloading ${variant.npmPkg}@${version} from npm`);
     try {
-        await execa('bun', ['add', `${NPM_PKG}@${version}`], { cwd: workDir });
-        const pkgDir = resolve(workDir, 'node_modules', NPM_PKG);
-        if (!existsSync(pkgDir))
-            throw new Error('bun add did not install expected package');
-        await execa('cp', ['-r', `${pkgDir}/.`, binDir]);
-        if (!existsSync(binPath))
-            throw new Error('binary not found after install');
+        const metaRes = await fetch(`https://registry.npmjs.org/${variant.npmPkg}/${version}`);
+        if (!metaRes.ok)
+            throw new Error(`npm metadata HTTP ${metaRes.status}`);
+        const meta = await metaRes.json();
+        const tarballUrl = meta.dist?.tarball;
+        if (!tarballUrl)
+            throw new Error('npm metadata missing dist.tarball');
+        const npmTgz = resolve(workDir, `npm-${version}.tar.gz`);
+        await execa('curl', ['-fL', tarballUrl, '-o', npmTgz], { cwd: workDir });
+        await execa('tar', ['-xzf', npmTgz], { cwd: workDir });
+        const candidate = await locateBinary(workDir);
+        if (!candidate)
+            throw new Error('binary not found in npm tarball');
+        await mkdir(dirname(binPath), { recursive: true });
+        if (candidate !== binPath)
+            await execa('cp', [candidate, binPath]);
         success('downloaded upstream binary from npm');
         return binPath;
     }
     catch (npmErr) {
         warn('npm download failed, falling back to GitHub release');
-        const ghUrl = `https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-arm64.tar.gz`;
-        const ghTgz = resolve(workDir, `opencode-linux-arm64-gh-${version}.tar.gz`);
-        await execa('curl', ['-fL', ghUrl, '-o', ghTgz], { cwd: workDir });
-        await mkdir(binDir, { recursive: true });
-        await execa('tar', ['-xzf', ghTgz], { cwd: workDir });
-        let candidate = '';
-        for (const name of ['opencode-linux-arm64', 'opencode']) {
-            const p = resolve(workDir, name);
-            if (existsSync(p)) {
-                candidate = p;
-                break;
-            }
-        }
-        if (!candidate) {
-            const { stdout } = await execa('find', [workDir, '-maxdepth', '3', '-type', 'f', '(',
-                '-name', 'opencode', '-o', '-name', 'opencode-*', ')', '-perm', '-u+x']);
-            candidate = stdout.split('\n')[0]?.trim() || '';
-        }
-        if (!candidate || !existsSync(candidate))
-            die('GitHub release binary not found');
-        await execa('cp', [candidate, binPath]);
-        success('downloaded upstream binary from GitHub release');
+        const relUrl = variant.releaseTarballUrl(version);
+        const relTgz = resolve(workDir, `opencode-linux-arm64-rel-${version}.tar.gz`);
+        await execa('curl', ['-fL', relUrl, '-o', relTgz], { cwd: workDir });
+        await execa('tar', ['-xzf', relTgz], { cwd: workDir });
+        const candidate = await locateBinary(workDir);
+        if (!candidate)
+            die('release tarball binary not found');
+        await mkdir(dirname(binPath), { recursive: true });
+        if (candidate !== binPath)
+            await execa('cp', [candidate, binPath]);
+        success('downloaded upstream binary from release tarball');
         return binPath;
     }
 }
