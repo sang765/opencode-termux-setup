@@ -7,22 +7,23 @@ import { install } from './install.js';
 import { writeLn, select, Spinner } from './ui.js';
 import { getCachedVersion, setCachedVersion } from './cache.js';
 import { ROOT } from './constants.js';
+import { V1, type Variant } from './variants.js';
 
-function getInstalledVersion(): string | null {
+function getInstalledVersion(variant: Variant): string | null {
   try {
-    const { stdout } = execaSync('opencode', ['--version']);
+    const { stdout } = execaSync(variant.binName, ['--version']);
     return stdout.trim();
   } catch {
     return null;
   }
 }
 
-async function fetchUpstreamVersion(): Promise<string> {
-  const res = await fetch('https://registry.npmjs.org/opencode-linux-arm64/latest');
+async function fetchUpstreamVersion(variant: Variant): Promise<string> {
+  const res = await fetch(`https://registry.npmjs.org/${variant.npmPkg}/latest`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json() as { version: string };
   const version = data.version;
-  await setCachedVersion(version);
+  await setCachedVersion(version, variant.id);
   return version;
 }
 
@@ -42,8 +43,8 @@ function isNewer(latest: string, current: string): boolean {
   return false;
 }
 
-export async function runFlow() {
-  const installed = getInstalledVersion();
+export async function runFlow(variant: Variant = V1) {
+  const installed = getInstalledVersion(variant);
 
   // Handle --version flag
   if (process.argv.slice(2).includes('--version')) {
@@ -54,14 +55,14 @@ export async function runFlow() {
   }
 
   // Show logo immediately
-  writeLn(`  \x1b[90mOpen\x1b[97mCode\x1b[0m for \x1b[38;5;208mTermux\x1b[0m`);
+  writeLn(`  \x1b[90m${variant.label.slice(0, 4)}\x1b[97m${variant.label.slice(4)}\x1b[0m for \x1b[38;5;208mTermux\x1b[0m`);
   writeLn(`  \x1b[90mInstalled\x1b[0m  \x1b[97m${installed ?? 'Not Installed'}\x1b[0m`);
 
   // Start upstream version check in parallel while we show the UI
   const upstreamPromise = (async () => {
-    const cached = await getCachedVersion();
+    const cached = await getCachedVersion(variant.id);
     if (cached) return cached;
-    return fetchUpstreamVersion();
+    return fetchUpstreamVersion(variant);
   })();
 
   let upstream: string | null = null;
@@ -105,17 +106,17 @@ export async function runFlow() {
 
       setSilent(true);
 
-      const spinner = new Spinner('Building OpenCode');
+      const spinner = new Spinner(`Building ${variant.label}`);
       spinner.start();
 
       try {
-        const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false });
+        const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false, variant: variant.id });
         spinner.succeed('Build complete');
 
         if (debPath) {
           const installSpinner = new Spinner('Installing package');
           installSpinner.start();
-          await install(debPath);
+          await install(debPath, variant.binName);
           installSpinner.succeed('Install complete');
         }
       } catch (err) {
