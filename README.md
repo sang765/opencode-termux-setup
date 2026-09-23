@@ -125,6 +125,7 @@ bun start                  # interactive mode
 bun start --debug          # verbose build
 bun start --pkg deb -i     # build and install specific version
 bun start -v 1.17.4        # build specific version
+bun start --v2 --pkg deb   # build OpenCode V2
 ```
 
 To test the published version locally before release:
@@ -139,6 +140,7 @@ bunx ./opencode-termux-setup-*.tgz
 |---|---|
 | `-v, --version <ver>` | Version to build (default: latest from npm) |
 | `--pkg <type>` | Package type: `deb`, `pacman`, or `both` (default: `deb`) |
+| `-2, --v2` | Build/run OpenCode V2 (installs as `opencode2`) |
 | `-i, --install` | Install the resulting `.deb` after building |
 | `-k, --keep` | Keep `.work/` directory for debugging |
 | `--debug` | Show verbose build output |
@@ -152,6 +154,8 @@ bunx ./opencode-termux-setup-*.tgz
 4. Stages the install prefix (launcher, runtime, statx seccomp shim)
 5. Builds a `.deb` package
 6. Cleans up intermediate artifacts — only the `.deb` remains
+
+With `--v2`, sources switch to npm `@opencode/cli-linux-arm64` (fallback `https://opencode.ai/files/bin/<ver>/opencode-linux-arm64.tar.gz`) and install as `opencode2` alongside `opencode`.
 
 ## Output
 
