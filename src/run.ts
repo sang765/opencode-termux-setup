@@ -5,27 +5,28 @@ import { ROOT } from './constants.js';
 import { build } from './build.js';
 import { install } from './install.js';
 import { info, warn, success, die } from './log.js';
+import { V1, type Variant } from './variants.js';
 
-function isInstalled(): boolean {
+function isInstalled(variant: Variant): boolean {
   try {
-    execaSync('which', ['opencode']);
+    execaSync('which', [variant.binName]);
     return true;
   } catch {
     return false;
   }
 }
 
-function getInstalledVersion(): string | null {
+function getInstalledVersion(variant: Variant): string | null {
   try {
-    const { stdout } = execaSync('opencode', ['--version']);
+    const { stdout } = execaSync(variant.binName, ['--version']);
     return stdout.trim();
   } catch {
     return null;
   }
 }
 
-async function getLatestVersion(): Promise<string> {
-  const res = await fetch('https://registry.npmjs.org/opencode-linux-arm64/latest');
+async function getLatestVersion(variant: Variant): Promise<string> {
+  const res = await fetch(`https://registry.npmjs.org/${variant.npmPkg}/latest`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json() as { version: string };
   return data.version;
@@ -61,30 +62,30 @@ function isNewer(latest: string, current: string): boolean {
   return false;
 }
 
-export async function run(opencodeArgs: string[]): Promise<void> {
-  if (!isInstalled()) {
-    warn('OpenCode is not installed');
+export async function run(opencodeArgs: string[], variant: Variant = V1): Promise<void> {
+  if (!isInstalled(variant)) {
+    warn(`${variant.label} is not installed`);
     const ok = await askQuestion('Build and install the latest version? [Y/n] ');
     if (!ok) {
       info('aborted');
       return;
     }
-    const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false });
-    if (debPath) await install(debPath);
+    const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false, variant: variant.id });
+    if (debPath) await install(debPath, variant.binName);
   } else {
-    const currentVer = getInstalledVersion();
-    info(`OpenCode ${currentVer} is installed`);
+    const currentVer = getInstalledVersion(variant);
+    info(`${variant.label} ${currentVer} is installed`);
 
     try {
-      const latestVer = await getLatestVersion();
+      const latestVer = await getLatestVersion(variant);
       info(`latest upstream: ${latestVer}`);
 
       if (currentVer && isNewer(latestVer, currentVer)) {
         warn(`version ${latestVer} is available (you have ${currentVer})`);
         const ok = await askQuestion('Update to the latest version? [Y/n] ');
         if (ok) {
-          const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false });
-          if (debPath) await install(debPath);
+          const debPath = await build({ version: undefined, pkg: 'deb', keepWork: false, variant: variant.id });
+          if (debPath) await install(debPath, variant.binName);
         } else {
           info('skipping update');
         }
@@ -96,9 +97,9 @@ export async function run(opencodeArgs: string[]): Promise<void> {
     }
   }
 
-  info('starting opencode...');
+  info(`starting ${variant.binName}...`);
   try {
-    await execa('opencode', opencodeArgs, { stdio: 'inherit' });
+    await execa(variant.binName, opencodeArgs, { stdio: 'inherit' });
   } catch {
     // opencode handles its own exit codes
   }
