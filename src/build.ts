@@ -7,11 +7,13 @@ import { stageInstall } from './stage.js';
 import { packageDeb, packagePacman } from './packaging.js';
 import { checkAndInstallPrereqs } from './prereqs.js';
 import { info, success, error } from './log.js';
+import { getVariant, type VariantId } from './variants.js';
 
 export interface BuildOptions {
   version?: string;
   pkg: 'deb' | 'pacman' | 'both';
   keepWork: boolean;
+  variant?: VariantId;
 }
 
 export interface BuildResult {
@@ -59,39 +61,40 @@ async function cleanupBuild(version: string, keepWork: boolean) {
 
 export async function build(opts: BuildOptions): Promise<string | undefined> {
   await checkAndInstallPrereqs();
-  const version = await resolveVersion(opts.version);
+  const variant = getVariant(opts.variant ?? 'v1');
+  const version = await resolveVersion(opts.version, variant);
   const workDir = resolve(ROOT, '.work', `opencode-${version}`);
   const runtimeDir = resolve(ROOT, 'artifacts', 'opencode', 'runtime');
   const runtimeOut = resolve(runtimeDir, 'opencode-termux');
   const loaderDir = resolve(ROOT, 'third-party', 'bun-termux');
 
-  info(`Building OpenCode v${version} for Termux (aarch64)`);
+  info(`Building ${variant.label} v${version} for Termux (aarch64)`);
 
   await mkdir(workDir, { recursive: true });
   await rm(workDir, { recursive: true, force: true });
   await mkdir(workDir, { recursive: true });
 
-  const upstreamBin = await downloadUpstream(version, workDir);
+  const upstreamBin = await downloadUpstream(version, workDir, variant);
 
   await mkdir(runtimeDir, { recursive: true });
 
   await wrapBinary(upstreamBin, runtimeOut, loaderDir);
 
-  await stageInstall(runtimeOut);
+  await stageInstall(runtimeOut, variant);
 
   let debPath: string | undefined;
   let pacmanPath: string | undefined;
 
   if (opts.pkg === 'deb' || opts.pkg === 'both') {
-    debPath = await packageDeb(version);
+    debPath = await packageDeb(version, variant);
   }
   if (opts.pkg === 'pacman' || opts.pkg === 'both') {
-    pacmanPath = await packagePacman(version);
+    pacmanPath = await packagePacman(version, variant);
   }
 
   await cleanupBuild(version, opts.keepWork);
 
-  success(`Build complete: OpenCode v${version}`);
+  success(`Build complete: ${variant.label} v${version}`);
   if (debPath) info(`  deb: ${debPath}`);
   if (pacmanPath) info(`  pacman: ${pacmanPath}`);
 
