@@ -24,15 +24,18 @@ echo ""
 
 REPO="sang765/opencode-termux-setup"
 DEB_PATTERN="opencode_.*_aarch64\\.deb"
+STREAM="V1"
+BIN_NAME="opencode"
 
 usage() {
   cat <<EOF
 Usage: install.sh [OPTIONS]
 
-Install OpenCode for Termux from the latest GitHub release.
+Install OpenCode for Termux from recent GitHub releases.
 
 Options:
   --repo OWNER/REPO    GitHub repository to fetch from (default: $REPO)
+  --v2, -2             Install the OpenCode V2 stream (default: V1)
   -h, --help           Show this help message
 EOF
   exit 0
@@ -43,6 +46,12 @@ while [[ $# -gt 0 ]]; do
     --repo)
       REPO="${2:?--repo requires a value}"
       shift 2
+      ;;
+    --v2|-2)
+      DEB_PATTERN="opencode2_.*_aarch64\\.deb"
+      STREAM="V2"
+      BIN_NAME="opencode2"
+      shift
       ;;
     -h|--help)
       usage
@@ -65,26 +74,29 @@ if ! command -v dpkg >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Fetching latest release from $REPO..."
-RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null) || {
-  echo "Error: Could not fetch release from $REPO" >&2
+echo "Fetching releases from $REPO (stream: OpenCode $STREAM)..."
+RELEASES_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=20" 2>/dev/null) || {
+  echo "Error: Could not fetch releases from $REPO" >&2
   echo "Make the repository and release exist." >&2
   exit 1
 }
 
-TAG=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-if [[ -z "$TAG" ]]; then
-  echo "Error: No release found" >&2
-  exit 1
-fi
-
-echo "Latest release: $TAG"
-
-DEB_URL=$(echo "$RELEASE_JSON" | grep '"browser_download_url"' | grep -E "$DEB_PATTERN" | head -1 | sed 's/.*"browser_download_url": *"\([^"]*\)".*/\1/')
+# Releases are newest-first; take the first one containing a matching .deb.
+DEB_URL=$(echo "$RELEASES_JSON" | grep '"browser_download_url"' | grep -E "$DEB_PATTERN" | head -1 | sed 's/.*"browser_download_url": *"\([^"]*\)".*/\1/') || true
 if [[ -z "$DEB_URL" ]]; then
-  echo "Error: No .deb file found in release $TAG" >&2
+  echo "Error: No OpenCode $STREAM .deb file found in the last 20 releases of $REPO" >&2
   exit 1
 fi
+
+# The release tag is embedded in the asset URL, so it matches the chosen .deb.
+TAG=$(echo "$DEB_URL" | sed -n 's|.*/releases/download/\([^/]*\)/.*|\1|p')
+if [[ -z "$TAG" ]]; then
+  echo "Error: Could not determine release tag for $DEB_URL" >&2
+  exit 1
+fi
+
+echo "Installing OpenCode $STREAM stream"
+echo "Release: $TAG"
 
 DEB_NAME=$(basename "$DEB_URL")
 TMP_DIR=$(mktemp -d)
@@ -97,5 +109,5 @@ echo "Installing $DEB_NAME..."
 dpkg -i "$TMP_DIR/$DEB_NAME"
 
 echo ""
-echo "OpenCode for Termux installed successfully!"
-echo "Run: opencode --version"
+echo "OpenCode $STREAM for Termux installed successfully!"
+echo "Run: $BIN_NAME --version"
