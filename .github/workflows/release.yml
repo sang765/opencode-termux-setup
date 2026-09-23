@@ -17,7 +17,7 @@ jobs:
       - name: Check for new OpenCode release
         id: check
         run: |
-          # Fetch latest OpenCode release
+          # Fetch latest OpenCode V1 release
           OPENCODE_JSON=$(curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest)
           OPENCODE_VERSION=$(echo "$OPENCODE_JSON" | grep '"tag_name"' | sed 's/.*"tag_name": *"v\?\([^"]*\)".*/\1/')
           OPENCODE_BODY=$(echo "$OPENCODE_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin).get('body',''))")
@@ -26,38 +26,57 @@ jobs:
           echo "$OPENCODE_BODY" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-          # Fetch latest release in this repo
-          RELEASES_JSON=$(curl -fsSL "https://api.github.com/repos/${{ github.repository }}/releases/latest" 2>/dev/null || echo '{}')
-          OUR_VERSION=$(echo "$RELEASES_JSON" | grep '"tag_name"' | sed 's/.*"tag_name": *"v\?\([^"]*\)".*/\1/' || true)
+          # V1 is up to date when this repo already published the matching tag
+          # (tag-based check: /releases/latest would return the V2 release once it exists)
+          V1_HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${OPENCODE_VERSION}")
+          echo "OpenCode V1 latest: v$OPENCODE_VERSION (our tag check: HTTP $V1_HTTP)"
 
-          echo "our_version=$OUR_VERSION" >> "$GITHUB_OUTPUT"
-          echo "OpenCode latest: v$OPENCODE_VERSION"
-          echo "Our latest: v$OUR_VERSION"
-
-          if [ "$OPENCODE_VERSION" = "$OUR_VERSION" ]; then
-            echo "up_to_date=true" >> "$GITHUB_OUTPUT"
-            echo "Versions match, skipping build."
+          if [ "$V1_HTTP" = "200" ]; then
+            echo "up_to_date_v1=true" >> "$GITHUB_OUTPUT"
+            echo "V1 release v$OPENCODE_VERSION already published, skipping V1 build."
           else
-            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
-            echo "New version available: v$OPENCODE_VERSION"
+            echo "up_to_date_v1=false" >> "$GITHUB_OUTPUT"
+            echo "New V1 version available: v$OPENCODE_VERSION"
+          fi
+
+      - name: Check for new OpenCode V2 release
+        id: check-v2
+        run: |
+          # Fetch latest OpenCode V2 version from the npm registry
+          V2_JSON=$(curl -fsSL https://registry.npmjs.org/@opencode/cli-linux-arm64/latest)
+          V2_VERSION=$(echo "$V2_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])")
+          echo "opencode2_version=$V2_VERSION" >> "$GITHUB_OUTPUT"
+
+          # V2 has no upstream GitHub releases; up to date = our tag already published
+          V2_HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${V2_VERSION}")
+          echo "OpenCode V2 latest: v$V2_VERSION (our tag check: HTTP $V2_HTTP)"
+
+          if [ "$V2_HTTP" = "200" ]; then
+            echo "up_to_date_v2=true" >> "$GITHUB_OUTPUT"
+            echo "V2 release v$V2_VERSION already published, skipping V2 build."
+          else
+            echo "up_to_date_v2=false" >> "$GITHUB_OUTPUT"
+            echo "New V2 version available: v$V2_VERSION"
           fi
 
       - name: Skip if up to date
-        if: steps.check.outputs.up_to_date == 'true'
+        if: steps.check.outputs.up_to_date_v1 == 'true' && steps.check.outputs.up_to_date_v2 == 'true'
         run: echo "Already up to date, nothing to do."
 
       - name: Set up Bun
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         uses: oven-sh/setup-bun@v2
 
       - name: Install build dependencies
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang python3 git make curl dpkg-dev
 
       - name: Download Android NDK
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         run: |
           NDK_URL="https://dl.google.com/android/repository/android-ndk-r27c-linux.zip"
           curl -fSL -o /tmp/ndk.zip "$NDK_URL"
@@ -66,7 +85,7 @@ jobs:
           echo "NDK_ROOT=/opt/android-ndk-r27c" >> "$GITHUB_ENV"
 
       - name: Build bun-termux wrapper
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         run: |
           git clone --depth 1 https://github.com/Happ1ness-dev/bun-termux.git /tmp/bun-termux
           cd /tmp/bun-termux
@@ -87,7 +106,7 @@ jobs:
           file bun-termux
 
       - name: Download OpenCode binary
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false'
         run: |
           VERSION="${{ steps.check.outputs.opencode_version }}"
           curl -fSL -o /tmp/opencode.tar.gz \
@@ -97,7 +116,7 @@ jobs:
           ls -la /tmp/opencode-build/
 
       - name: Wrap binary with bun-termux
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false'
         run: |
           cd /tmp/bun-termux
           INPUT=$(find /tmp/opencode-build -name 'opencode*' -type f -executable | head -1)
@@ -112,7 +131,7 @@ jobs:
           file /tmp/opencode-termux
 
       - name: Build .deb package
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false'
         id: build
         run: |
           VERSION="${{ steps.check.outputs.opencode_version }}"
@@ -159,8 +178,84 @@ jobs:
           echo "deb_path=release/$DEB_NAME" >> "$GITHUB_OUTPUT"
           echo "deb_file=$DEB_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Download OpenCode V2 binary
+        if: steps.check.outputs.up_to_date_v2 == 'false'
+        run: |
+          VERSION="${{ steps.check-v2.outputs.opencode2_version }}"
+          curl -fSL -o /tmp/opencode2.tar.gz \
+            "https://opencode.ai/files/bin/${VERSION}/opencode-linux-arm64.tar.gz"
+          mkdir -p /tmp/opencode2-build
+          tar -xzf /tmp/opencode2.tar.gz -C /tmp/opencode2-build/
+          ls -la /tmp/opencode2-build/
+
+      - name: Wrap V2 binary with bun-termux
+        if: steps.check.outputs.up_to_date_v2 == 'false'
+        run: |
+          cd /tmp/bun-termux
+          INPUT=$(find /tmp/opencode2-build -name 'opencode*' -type f -executable | head -1)
+          if [ -z "$INPUT" ]; then
+            INPUT=$(find /tmp/opencode2-build -name 'opencode*' -type f | head -1)
+          fi
+          echo "Input binary: $INPUT"
+
+          python3 helper_scripts/replace_runtime.py "$INPUT" /tmp/opencode2-termux --wrapper ./bun-termux
+
+          echo "Wrapped binary:"
+          file /tmp/opencode2-termux
+
+      - name: Build opencode2 .deb package
+        if: steps.check.outputs.up_to_date_v2 == 'false'
+        id: build-v2
+        run: |
+          VERSION="${{ steps.check-v2.outputs.opencode2_version }}"
+          ARCH="aarch64"
+          DEB_NAME="opencode2_${VERSION}_${ARCH}.deb"
+          DEB_ROOT="/tmp/deb-root-v2"
+
+          mkdir -p "$DEB_ROOT/DEBIAN"
+          mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/bin"
+          mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode2/runtime"
+          mkdir -p "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode2/lib"
+
+          # Copy wrapped binary (runtime file name stays "opencode")
+          cp /tmp/opencode2-termux "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode2/runtime/opencode"
+          chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/lib/opencode2/runtime/opencode"
+
+          # Copy launcher script with V2 lib paths (no statx shim shipped)
+          sed -e 's|\.\./lib/opencode/|../lib/opencode2/|g' \
+              -e 's|opencode: no runtime found|opencode2: no runtime found|' \
+              resources/launcher.sh \
+              > "$DEB_ROOT/data/data/com.termux/files/usr/bin/opencode2"
+          chmod 755 "$DEB_ROOT/data/data/com.termux/files/usr/bin/opencode2"
+
+          # Create control file
+          printf '%s\n' \
+            "Package: opencode2" \
+            "Version: $VERSION" \
+            "Architecture: $ARCH" \
+            "Maintainer: opencode-termux <opencode@termux.dev>" \
+            "Section: utils" \
+            "Priority: optional" \
+            "Description: OpenCode V2 CLI for Termux (AI coding assistant)" \
+            "Depends: glibc, openssl-glibc, bash, ncurses" \
+            "Suggests: glibc-runner" \
+            > "$DEB_ROOT/DEBIAN/control"
+
+          # Calculate installed size
+          SIZE=$(du -sk "$DEB_ROOT" | cut -f1)
+          echo "Installed-Size: $SIZE" >> "$DEB_ROOT/DEBIAN/control"
+
+          # Build .deb
+          dpkg-deb --build "$DEB_ROOT" "/tmp/$DEB_NAME"
+
+          # Copy to workspace
+          mkdir -p "${{ github.workspace }}/release"
+          cp "/tmp/$DEB_NAME" "${{ github.workspace }}/release/"
+          echo "deb_path=release/$DEB_NAME" >> "$GITHUB_OUTPUT"
+          echo "deb_file=$DEB_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Download Bun binary
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         id: download-bun
         run: |
           BUN_JSON=$(curl -fsSL https://api.github.com/repos/oven-sh/bun/releases/latest)
@@ -176,7 +271,7 @@ jobs:
           echo "bun_version=$BUN_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Prepare Bun binary
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         run: |
           # Bun Android release is already a native Android binary (uses /system/bin/linker64),
           # so it doesn't need bun-termux wrapping like the OpenCode binary does.
@@ -193,7 +288,7 @@ jobs:
           file /tmp/bun-termux-bin
 
       - name: Build bun .deb package
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false' || steps.check.outputs.up_to_date_v2 == 'false'
         id: build-bun
         run: |
           OPENCODE_VERSION="${{ steps.check.outputs.opencode_version }}"
@@ -248,7 +343,7 @@ jobs:
           echo "bun_deb_file=$DEB_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Create release
-        if: steps.check.outputs.up_to_date == 'false'
+        if: steps.check.outputs.up_to_date_v1 == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.check.outputs.opencode_version }}
@@ -288,5 +383,45 @@ jobs:
           draft: false
           files: |
             ${{ github.workspace }}/release/${{ steps.build.outputs.deb_file }}
+            ${{ github.workspace }}/release/${{ steps.build-bun.outputs.bun_deb_file }}
+          prerelease: false
+
+      - name: Create V2 release
+        if: steps.check.outputs.up_to_date_v2 == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.check-v2.outputs.opencode2_version }}
+          name: v${{ steps.check-v2.outputs.opencode2_version }}
+          body: |
+            # OpenCode V2 for Termux ${{ steps.check-v2.outputs.opencode2_version }}
+
+            ## Packages
+
+            ### opencode2_${{ steps.check-v2.outputs.opencode2_version }}_aarch64.deb
+            OpenCode V2 CLI for Termux (AI coding assistant)
+
+            ### bun_${{ steps.download-bun.outputs.bun_version }}_aarch64.deb
+            Bun runtime for Termux (without proot)
+
+            > [!NOTE]
+            > Installing the bun package will automatically install glibc dependencies (glibc-repo, glibc, openssl-glibc).
+
+            ## How to install?
+
+            ### First time (For users who are not developing locally and have not installed dependencies)
+            ```bash
+            apt install -y glibc-repo && apt update && apt install -y glibc openssl-glibc
+            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh | bash -s -- --v2
+            ```
+
+            ### Already installed dependencies
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/install.sh | bash -s -- --v2
+            ```
+
+            Omit `--v2` to install the V1 stream (default). The script searches recent releases for the matching .deb, downloads it, and installs it for you with `dpkg -i` command.
+          draft: false
+          files: |
+            ${{ github.workspace }}/release/${{ steps.build-v2.outputs.deb_file }}
             ${{ github.workspace }}/release/${{ steps.build-bun.outputs.bun_deb_file }}
           prerelease: false
