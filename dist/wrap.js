@@ -1,10 +1,56 @@
 import { execa } from 'execa';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { resolveLoader } from './download.js';
-import { info, success, die } from './log.js';
+import { info, warn, success, die } from './log.js';
+function semverLt(a, b) {
+    const pa = a.split('.').map(Number);
+    const pb = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) {
+        const d = (pa[i] ?? 0) - (pb[i] ?? 0);
+        if (d !== 0)
+            return d < 0;
+    }
+    return false;
+}
+async function requiredBunVersion(upstreamBin) {
+    const buf = await readFile(upstreamBin);
+    const needle = Buffer.from('Bun v');
+    let from = 0;
+    for (;;) {
+        const idx = buf.indexOf(needle, from);
+        if (idx < 0)
+            return undefined;
+        const m = buf.subarray(idx, idx + 32).toString('ascii').match(/^Bun v(\d+\.\d+\.\d+)/);
+        if (m)
+            return m[1];
+        from = idx + needle.length;
+    }
+}
+async function engineBunVersion() {
+    try {
+        const { stdout } = await execa('bun', ['--version']);
+        const v = stdout.trim();
+        return /^\d+\.\d+\.\d+$/.test(v) ? v : undefined;
+    }
+    catch {
+        return undefined;
+    }
+}
 export async function wrapBinary(upstreamBin, runtimeOut, loaderDir) {
     const loaderPath = await resolveLoader(loaderDir);
+    const required = await requiredBunVersion(upstreamBin);
+    const engine = await engineBunVersion();
+    if (required && engine && semverLt(engine, required)) {
+        die(`engine Bun ${engine} is older than upstream payload Bun ${required}`, `run: bun-termux-manager update bun  (or btm update bun), then rebuild`);
+    }
+    if (required && !engine) {
+        warn(`could not detect engine Bun version; upstream payload expects ${required}`);
+    }
+    if (required && engine) {
+        info(`bun engine ${engine} >= payload ${required}`);
+    }
     info('building bun-termux wrapper');
     await execa('make', ['all'], { cwd: loaderPath });
     const wrapperBin = resolve(loaderPath, 'bun-termux');
