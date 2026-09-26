@@ -26,15 +26,18 @@ jobs:
           echo "$OPENCODE_BODY" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-          # V1 is up to date when this repo already published the matching tag
-          # (tag-based check: /releases/latest would return the V2 release once it exists)
-          V1_HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${OPENCODE_VERSION}")
-          echo "OpenCode V1 latest: v$OPENCODE_VERSION (our tag check: HTTP $V1_HTTP)"
+          # Up to date only when this repo already published the .deb for this stream:
+          # both streams share the v<version> tag namespace, so the tag alone is ambiguous
+          # (and /releases/latest would return whichever stream was published last).
+          V1_DEB="opencode_${OPENCODE_VERSION}_aarch64.deb"
+          V1_JSON=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${OPENCODE_VERSION}")
+          V1_PUBLISHED=$(printf '%s' "$V1_JSON" \
+            | python3 -c "import json,sys; print('true' if sys.argv[1] in [a['name'] for a in json.load(sys.stdin).get('assets',[])] else 'false')" "$V1_DEB")
+          echo "OpenCode V1 latest: v$OPENCODE_VERSION ($V1_DEB published: $V1_PUBLISHED)"
 
-          if [ "$V1_HTTP" = "200" ]; then
+          if [ "$V1_PUBLISHED" = "true" ]; then
             echo "up_to_date=true" >> "$GITHUB_OUTPUT"
-            echo "V1 release v$OPENCODE_VERSION already published, skipping V1 build."
+            echo "V1 release v$OPENCODE_VERSION already has $V1_DEB, skipping build."
           else
             echo "up_to_date=false" >> "$GITHUB_OUTPUT"
             echo "New V1 version available: v$OPENCODE_VERSION"

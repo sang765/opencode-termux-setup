@@ -22,15 +22,18 @@ jobs:
           V2_JSON=$(curl -fsSL https://registry.npmjs.org/@opencode/cli-linux-arm64/latest)
           V2_VERSION=$(echo "$V2_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])")
           echo "opencode2_version=$V2_VERSION" >> "$GITHUB_OUTPUT"
-          echo "OpenCode V2 latest: v$V2_VERSION"
 
-          V2_HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${V2_VERSION}")
-          echo "Our tag check: HTTP $V2_HTTP"
+          # Up to date only when this repo already published the opencode2 .deb:
+          # both streams share the v<version> tag namespace, so the tag alone is ambiguous.
+          V2_DEB="opencode2_${V2_VERSION}_aarch64.deb"
+          V2_REL_JSON=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${V2_VERSION}")
+          V2_PUBLISHED=$(printf '%s' "$V2_REL_JSON" \
+            | python3 -c "import json,sys; print('true' if sys.argv[1] in [a['name'] for a in json.load(sys.stdin).get('assets',[])] else 'false')" "$V2_DEB")
+          echo "OpenCode V2 latest: v$V2_VERSION ($V2_DEB published: $V2_PUBLISHED)"
 
-          if [ "$V2_HTTP" = "200" ]; then
+          if [ "$V2_PUBLISHED" = "true" ]; then
             echo "up_to_date=true" >> "$GITHUB_OUTPUT"
-            echo "V2 release v$V2_VERSION already published, skipping build."
+            echo "V2 release v$V2_VERSION already has $V2_DEB, skipping build."
           else
             echo "up_to_date=false" >> "$GITHUB_OUTPUT"
             echo "New V2 version available: v$V2_VERSION"
