@@ -75,7 +75,7 @@ if ! command -v dpkg >/dev/null 2>&1; then
 fi
 
 echo "Fetching releases from $REPO (stream: OpenCode $STREAM)..."
-RELEASES_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=20" 2>/dev/null) || {
+RELEASES_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=100" 2>/dev/null) || {
   echo "Error: Could not fetch releases from $REPO" >&2
   echo "Make the repository and release exist." >&2
   exit 1
@@ -84,7 +84,7 @@ RELEASES_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page
 # Releases are newest-first; take the first one containing a matching .deb.
 DEB_URL=$(echo "$RELEASES_JSON" | grep '"browser_download_url"' | grep -E "$DEB_PATTERN" | head -1 | sed 's/.*"browser_download_url": *"\([^"]*\)".*/\1/') || true
 if [[ -z "$DEB_URL" ]]; then
-  echo "Error: No OpenCode $STREAM .deb file found in the last 20 releases of $REPO" >&2
+  echo "Error: No OpenCode $STREAM .deb file found in recent releases of $REPO" >&2
   exit 1
 fi
 
