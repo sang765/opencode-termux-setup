@@ -49,6 +49,14 @@ This:
 4. **Outdated?** Prompts with an interactive arrow-key menu
 5. **Up to date?** Prints confirmation and exits
 
+Add `--v2` to run the same flow against the **OpenCode V2** stream:
+
+```bash
+bunx -y github:sang765/opencode-termux-setup#main --v2
+```
+
+It compares your installed `opencode2` against npm [`@opencode/cli-linux-arm64`](https://www.npmjs.com/package/@opencode/cli-linux-arm64) instead of [`opencode-linux-arm64`](https://www.npmjs.com/package/opencode-linux-arm64), and installs as `opencode2` alongside `opencode`. `opencode2` also needs a `buno` engine at least as new as the Bun version used to compile upstream — see [Prerequisites](#prerequisites).
+
 No clone needed — bunx fetches and runs everything from GitHub.
 
 ### Convenience alias
@@ -86,6 +94,7 @@ Missing build tools are auto-installed via `apt` on first run.
 | Command | Mode |
 |---|---|
 | `bunx -y github:sang765/opencode-termux-setup#main` | **Check & update** — version check, auto-install or prompt, no launch |
+| `bunx -y github:sang765/opencode-termux-setup#main --v2` | **V2 check & update** — same flow for the `opencode2` stream |
 | `bunx -y github:sang765/opencode-termux-setup#main --debug` | **Verbose** — full build logs with `[opencode-termux]` prefix |
 | `bunx -y github:sang765/opencode-termux-setup#main --pkg deb` | **Build only** — create `.deb` without installing |
 
