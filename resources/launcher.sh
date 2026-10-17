@@ -57,6 +57,12 @@ cleanup_broken_cached_modules
 : "${OPENCODE_DISABLE_DEFAULT_PLUGINS:=1}"
 export OPENCODE_DISABLE_DEFAULT_PLUGINS
 
+# Upstream's self-updater cannot recognise a bun-termux wrapped binary, so its
+# update dialog only reports "Could not detect the installation method" — and if
+# it ever did run, it would replace the wrapper with a plain Linux ARM64 binary.
+: "${OPENCODE_DISABLE_AUTOUPDATE:=1}"
+export OPENCODE_DISABLE_AUTOUPDATE
+
 if [[ -x "$OPENCODE_RUNTIME" ]]; then
   apply_statx_shim
   export OPENCODE_RUNTIME_SELECTED="glibc-wrapped"

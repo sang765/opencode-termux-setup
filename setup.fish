@@ -61,5 +61,14 @@ end
 
 echo "All core dependencies satisfied."
 echo ""
+echo "Installing the /update command for OpenCode..."
+mkdir -p $HOME/.config/opencode/command
+if curl -fsSL https://raw.githubusercontent.com/sang765/opencode-termux-setup/main/resources/opencode-command-update.md -o $HOME/.config/opencode/command/update.md
+  echo "  ✓ /update is available inside OpenCode"
+else
+  echo "  ! could not install /update, add resources/opencode-command-update.md by hand"
+end
+
+echo ""
 echo "All dependencies satisfied. Running full build pipeline..."
 bunx -y github:sang765/opencode-termux-setup $argv
